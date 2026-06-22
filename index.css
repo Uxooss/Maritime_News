@@ -359,7 +359,7 @@ input:checked+.slider:before {
   color: var(--text-primary);
   border-radius: 12px;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   outline: none;
   transition: all 0.3s;
 }
@@ -1306,6 +1306,21 @@ input:checked+.slider:before {
 }
 
 /* Custom Alert Banner */
+.ticker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ticker-title {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--alert-high);
+  letter-spacing: 0.5px;
+  padding-left: 0.25rem;
+}
+
 .ticker-banner {
   background: linear-gradient(90deg, rgba(14, 165, 233, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
   border: var(--glass-border);
@@ -1313,25 +1328,13 @@ input:checked+.slider:before {
   padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
   overflow: hidden;
-}
-
-.ticker-title {
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--accent-primary);
-  border-right: 1px solid var(--border-color);
-  padding-right: 1rem;
-  white-space: nowrap;
-  letter-spacing: 0.5px;
 }
 
 .ticker-scroll {
   display: flex;
   gap: 2.5rem;
-  animation: marquee 90s linear infinite;
+  animation: marquee 120s linear infinite;
   white-space: nowrap;
 }
 
