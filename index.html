@@ -42,15 +42,7 @@
         </a>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="theme-toggle-container">
-          <span class="theme-label"><i class="fa-solid fa-moon"></i> Dark Mode</span>
-          <label class="theme-switch" aria-label="Toggle Theme">
-            <input type="checkbox" id="theme-toggle-chk" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
+      <div class="sidebar-footer"></div>
     </aside>
 
     <!-- Main Content Area -->
@@ -78,11 +70,13 @@
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="search-bar" class="search-input" placeholder="Search regulations, conventions...">
           </div>
-          
-          <!-- Mobile Theme Toggle Helper -->
-          <button id="mobile-theme-toggle" class="carousel-btn" style="display: none;" title="Toggle Theme" aria-label="Toggle Theme">
-            <i class="fa-solid fa-sun"></i>
-          </button>
+
+          <!-- Theme Toggle -->
+          <div class="header-theme-toggle">
+            <button id="mobile-theme-toggle" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+          </div>
         </div>
       </header>
 

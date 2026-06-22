@@ -63,8 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lastUpdateTime: document.getElementById("last-update-time"),
     toastContainer: document.getElementById("toast-container"),
     
-    // Theme toggles
-    themeToggleChk: document.getElementById("theme-toggle-chk"),
+    // Theme toggle
     mobileThemeToggle: document.getElementById("mobile-theme-toggle"),
     
     // Details Drawer
@@ -123,10 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Initial Render
     renderView();
-    
-    // Check if mobile theme toggle needs displaying
-    checkMobileLayout();
-    window.addEventListener("resize", checkMobileLayout);
   }
 
   // --- THEME MANAGEMENT ---
@@ -134,55 +129,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem("vesselnews-theme") || "dark";
     state.theme = savedTheme;
     DOM.html.setAttribute("data-theme", savedTheme);
-    
-    if (DOM.themeToggleChk) {
-      DOM.themeToggleChk.checked = (savedTheme === "dark");
-    }
-    updateThemeToggleLabel();
+    updateThemeToggleIcon();
   }
 
-  function toggleTheme(isDark) {
-    const newTheme = isDark ? "dark" : "light";
+  function toggleTheme() {
+    const newTheme = state.theme === "dark" ? "light" : "dark";
     state.theme = newTheme;
     DOM.html.setAttribute("data-theme", newTheme);
     localStorage.setItem("vesselnews-theme", newTheme);
-    
-    if (DOM.themeToggleChk) {
-      DOM.themeToggleChk.checked = isDark;
-    }
-    updateThemeToggleLabel();
-    checkMobileLayout();
+    updateThemeToggleIcon();
   }
 
-  function updateThemeToggleLabel() {
-    const label = document.querySelector(".theme-label");
-    if (label) {
-      if (state.theme === "dark") {
-        label.innerHTML = `<i class="fa-solid fa-moon"></i> Dark Mode`;
-      } else {
-        label.innerHTML = `<i class="fa-solid fa-sun"></i> Light Mode`;
-      }
-    }
-    
-    // Mobile toggle helper button icon update
+  function updateThemeToggleIcon() {
     if (DOM.mobileThemeToggle) {
       const icon = DOM.mobileThemeToggle.querySelector("i");
       if (icon) {
-        if (state.theme === "dark") {
-          icon.className = "fa-solid fa-sun";
-        } else {
-          icon.className = "fa-solid fa-moon";
-        }
+        // Show sun icon in dark mode (click to go light), moon in light mode (click to go dark)
+        icon.className = state.theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
       }
-    }
-  }
-
-  function checkMobileLayout() {
-    // Show mobile theme button if window is small and sidebar is invisible or layout wraps
-    if (window.innerWidth <= 768) {
-      DOM.mobileThemeToggle.style.display = "flex";
-    } else {
-      DOM.mobileThemeToggle.style.display = "none";
+      DOM.mobileThemeToggle.title = state.theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode";
     }
   }
 
@@ -419,17 +384,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Theme toggler (Sidebar)
-    if (DOM.themeToggleChk) {
-      DOM.themeToggleChk.addEventListener("change", (e) => {
-        toggleTheme(e.target.checked);
-      });
-    }
-
-    // Theme toggler (Mobile)
+    // Theme toggler (Header button)
     if (DOM.mobileThemeToggle) {
       DOM.mobileThemeToggle.addEventListener("click", () => {
-        toggleTheme(state.theme === "light");
+        toggleTheme();
       });
     }
 
