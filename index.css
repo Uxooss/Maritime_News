@@ -514,6 +514,27 @@ input:checked + .slider:before {
   min-width: 80px;
 }
 
+/* Desktop default: <details>/<summary> render as an always-open plain row,
+   identical to the old filter-row markup. Mobile re-enables the native
+   collapse behavior inside .filters-panel (see 768px breakpoint below). */
+.filter-dropdown summary {
+  list-style: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+.filter-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-dropdown summary::marker {
+  content: "";
+}
+
+.filter-dropdown > .filter-tags {
+  display: flex !important;
+}
+
 .filter-tags {
   display: flex;
   gap: 0.5rem;
@@ -1960,13 +1981,17 @@ input:checked + .slider:before {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     width: 85%;
     max-width: 320px;
     background: var(--bg-secondary);
     z-index: 1500;
     padding: 1.25rem;
+    padding-bottom: 2rem;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
@@ -1977,12 +2002,16 @@ input:checked + .slider:before {
   }
 
   .filters-panel-header {
+    position: sticky;
+    top: -1.25rem;
+    background: var(--bg-secondary);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    margin: -1.25rem -1.25rem 1rem;
+    padding: 1.25rem 1.25rem 0.75rem;
     border-bottom: var(--glass-border);
+    z-index: 1;
   }
 
   .filters-panel-title {
@@ -2010,6 +2039,52 @@ input:checked + .slider:before {
   .filters-panel .filter-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  /* Each filter becomes its own collapsible dropdown on mobile */
+  .filters-panel .filter-dropdown {
+    border-bottom: var(--glass-border);
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .filters-panel .filter-dropdown:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .filters-panel .filter-dropdown summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 0.25rem 0;
+  }
+
+  .filters-panel .filter-dropdown summary::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    margin-left: 0.5rem;
+  }
+
+  .filters-panel .filter-dropdown[open] summary::after {
+    transform: rotate(180deg);
+  }
+
+  .filters-panel .filter-dropdown > .filter-tags {
+    margin-top: 0.65rem;
+  }
+
+  /* Collapsed by default on mobile: only the tapped group expands */
+  .filters-panel .filter-dropdown:not([open]) > .filter-tags {
+    display: none !important;
   }
 
   .update-action-group {
