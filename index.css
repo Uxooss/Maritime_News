@@ -1,5 +1,5 @@
 /* index.css - Maritime News & Study Center */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
 /* Theme CSS Variables */
 :root {
@@ -28,8 +28,8 @@
   --alert-medium-bg: rgba(245, 158, 11, 0.12);
   --alert-low-bg: rgba(59, 130, 246, 0.12);
 
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-body: "Inter", sans-serif;
   --sidebar-width: 280px;
   --header-height: 80px;
 }
@@ -91,7 +91,9 @@ body {
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
 }
 
 body.no-scroll {
@@ -120,7 +122,10 @@ body.no-scroll {
   position: fixed;
   height: 100vh;
   z-index: 100;
-  transition: width 0.3s ease, transform 0.3s ease, background 0.3s;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease,
+    background 0.3s;
 }
 
 .brand-section {
@@ -133,7 +138,11 @@ body.no-scroll {
 .brand-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -147,7 +156,12 @@ body.no-scroll {
   font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 800;
-  background: linear-gradient(to right, var(--text-primary), var(--accent-primary));
+  background: linear-gradient(
+    to right,
+    var(--text-primary),
+    var(--accent-primary)
+  );
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
@@ -191,7 +205,11 @@ body.no-scroll {
 }
 
 .nav-item.active {
-  background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(
+    to right,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
   color: #ffffff;
   box-shadow: 0 4px 15px rgba(14, 165, 233, 0.25);
 }
@@ -244,7 +262,7 @@ body.no-scroll {
   right: 0;
   bottom: 0;
   background-color: var(--text-muted);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -259,16 +277,16 @@ body.no-scroll {
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-input:checked+.slider {
+input:checked + .slider {
   background-color: var(--accent-primary);
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   transform: translateX(24px);
 }
 
@@ -282,16 +300,20 @@ input:checked+.slider:before {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  transition: margin-left 0.3s ease, padding 0.3s ease;
+  transition:
+    margin-left 0.3s ease,
+    padding 0.3s ease;
   min-width: 0;
 }
 
 /* Top Dashboard Header */
 .dashboard-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
+  padding-top: 2rem;
 }
 
 .header-welcome h1 {
@@ -314,19 +336,21 @@ input:checked+.slider:before {
 }
 
 .header-theme-toggle {
-  display: flex;
-  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
 }
 
 .theme-toggle-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
   border: var(--glass-border);
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: 0.7rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -390,7 +414,9 @@ input:checked+.slider:before {
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 4px 20px var(--shadow-color);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .stat-card:hover {
@@ -549,7 +575,10 @@ input:checked+.slider:before {
   justify-content: space-between;
   gap: 1rem;
   box-shadow: 0 4px 20px var(--shadow-color);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s, box-shadow 0.25s;
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s,
+    box-shadow 0.25s;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -618,7 +647,9 @@ input:checked+.slider:before {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 1.15rem;
-  transition: color 0.2s, transform 0.2s;
+  transition:
+    color 0.2s,
+    transform 0.2s;
   z-index: 5;
 }
 
@@ -652,6 +683,7 @@ input:checked+.slider:before {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -858,12 +890,20 @@ input:checked+.slider:before {
 }
 
 .flashcard-front {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 100%
+  );
   color: var(--text-primary);
 }
 
 .flashcard-back {
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-secondary) 100%
+  );
   color: var(--text-primary);
   transform: rotateY(180deg);
   border-color: var(--accent-primary);
@@ -1339,7 +1379,11 @@ input:checked+.slider:before {
 }
 
 .ticker-banner {
-  background: linear-gradient(90deg, rgba(14, 165, 233, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(14, 165, 233, 0.15) 0%,
+    rgba(6, 182, 212, 0.15) 100%
+  );
   border: var(--glass-border);
   border-radius: 12px;
   padding: 0.75rem 1.25rem;
@@ -1407,7 +1451,11 @@ input:checked+.slider:before {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary) 0%,
+    var(--accent-secondary) 100%
+  );
   color: white;
   border: none;
   padding: 0.65rem 1.25rem;
@@ -1464,6 +1512,7 @@ input:checked+.slider:before {
 .size-small .card-excerpt {
   font-size: 0.8rem;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .size-small .badge {
@@ -1563,7 +1612,9 @@ input:checked+.slider:before {
   pointer-events: auto;
   position: relative;
   overflow: hidden;
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 
 .toast-item.toast-success {
@@ -1620,8 +1671,6 @@ input:checked+.slider:before {
 .toast-item.fade-out {
   animation: toastFadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
-
 
 @keyframes marquee {
   0% {
@@ -1786,11 +1835,6 @@ input:checked+.slider:before {
     font-size: 0.7rem;
   }
 
-  .header-theme-toggle {
-    order: 2;
-    flex-shrink: 0;
-  }
-
   .search-wrapper {
     order: 3;
     width: 100%;
@@ -1840,28 +1884,32 @@ input:checked+.slider:before {
     justify-content: center;
     align-items: center;
     text-align: center;
-    gap: 0.4rem;
-    padding: 1rem 0.5rem;
+    gap: 0.15rem;
+    padding: 0.5rem 0.4rem;
   }
 
   .stat-info {
     align-items: center;
     order: 2;
+    gap: 0.1rem;
   }
 
   .stat-icon {
     order: 1;
-    width: 36px;
-    height: 36px;
-    font-size: 0.95rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    margin-bottom: 0.1rem;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.5px;
   }
 
   .stat-number {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
   }
 
   .filter-container {

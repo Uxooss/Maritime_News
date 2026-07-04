@@ -1,410 +1,535 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VesselNews - Maritime Regulatory News & Study Center</title>
-  <meta name="description" content="Stay current with summarized maritime regulatory updates from IMO, ILO, DNV, Lloyd's Register, ABS, BIMCO, ICS, Gard P&I, UK P&I Club, Safety4Sea, TradeWinds, Flag Administrations (Singapore, Malta, Hong Kong, Panama), and more.">
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="index.css">
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-
-  <div class="app-container">
-    
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="brand-section">
-        <div class="brand-icon">
-          <i class="fa-solid fa-ship"></i>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VesselNews - Maritime Regulatory News & Study Center</title>
+    <meta
+      name="description"
+      content="Stay current with summarized maritime regulatory updates from IMO, ILO, DNV, Lloyd's Register, ABS, BIMCO, ICS, Gard P&I, UK P&I Club, Safety4Sea, TradeWinds, Flag Administrations (Singapore, Malta, Hong Kong, Panama), and more."
+    />
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="index.css" />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="brand-section">
+          <div class="brand-icon">
+            <i class="fa-solid fa-ship"></i>
+          </div>
+          <div class="brand-name">VesselNews</div>
         </div>
-        <div class="brand-name">VesselNews</div>
-      </div>
 
-      <nav class="nav-menu">
-        <a class="nav-item active" data-view="news" id="nav-news">
-          <i class="fa-solid fa-newspaper"></i>
-          <span>News Board</span>
-        </a>
-        <a class="nav-item" data-view="timeline" id="nav-timeline">
-          <i class="fa-solid fa-timeline"></i>
-          <span>Timeline</span>
-        </a>
-        <a class="nav-item" data-view="study" id="nav-study">
-          <i class="fa-solid fa-graduation-cap"></i>
-          <span>Study Deck</span>
-        </a>
-        <a class="nav-item" data-view="bookmarks" id="nav-bookmarks">
-          <i class="fa-solid fa-bookmark"></i>
-          <span>Saved Articles</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-footer"></div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="main-content">
-      
-      <!-- Top Header -->
-      <header class="dashboard-header">
-        <div class="header-welcome">
-          <h1 id="view-title">Maritime News Board</h1>
-          <p id="view-subtitle">Summarized updates from major Maritime Organisations & Conventions</p>
-        </div>
-        
-        <div class="header-actions">
-          <!-- Update News Action -->
-          <div class="update-action-group">
-            <button id="btn-update-news" class="update-btn" title="Parse sources for updates">
-              <i class="fa-solid fa-arrows-rotate"></i>
-              <span>Update News</span>
-            </button>
-            <span id="last-update-time" class="last-update-time">Last checked: 2026-06-22 13:25</span>
-          </div>
-
-          <!-- Search Wrapper -->
-          <div class="search-wrapper">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="search-bar" class="search-input" placeholder="Search regulations, conventions...">
-          </div>
-
-          <!-- Theme Toggle -->
-          <div class="header-theme-toggle">
-            <button id="mobile-theme-toggle" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
-              <i class="fa-solid fa-moon"></i>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <!-- Ticker / Regulatory Alert Banner -->
-      <div class="ticker-section">
-        <div class="ticker-title">
-          <i class="fa-solid fa-triangle-exclamation"></i> Critical Alerts
-        </div>
-        <div class="ticker-banner" id="ticker-banner">
-          <div class="ticker-scroll" id="ticker-scroll-content">
-            <!-- Populated by JavaScript -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Stat Counter Cards -->
-      <section class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-info">
-            <span class="stat-label">Total Updates</span>
-            <span class="stat-number" id="stat-total-updates">0</span>
-          </div>
-          <div class="stat-icon">
-            <i class="fa-solid fa-database"></i>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-info">
-            <span class="stat-label">High Impact</span>
-            <span class="stat-number" id="stat-high-impact">0</span>
-          </div>
-          <div class="stat-icon">
-            <i class="fa-solid fa-bolt"></i>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-info">
-            <span class="stat-label">Study Questions</span>
-            <span class="stat-number" id="stat-quiz-questions">0</span>
-          </div>
-          <div class="stat-icon">
-            <i class="fa-solid fa-circle-question"></i>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-info">
-            <span class="stat-label">Saved items</span>
-            <span class="stat-number" id="stat-saved-items">0</span>
-          </div>
-          <div class="stat-icon">
+        <nav class="nav-menu">
+          <a class="nav-item active" data-view="news" id="nav-news">
+            <i class="fa-solid fa-newspaper"></i>
+            <span>News Board</span>
+          </a>
+          <a class="nav-item" data-view="timeline" id="nav-timeline">
+            <i class="fa-solid fa-timeline"></i>
+            <span>Timeline</span>
+          </a>
+          <a class="nav-item" data-view="study" id="nav-study">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Study Deck</span>
+          </a>
+          <a class="nav-item" data-view="bookmarks" id="nav-bookmarks">
             <i class="fa-solid fa-bookmark"></i>
-          </div>
-        </div>
-      </section>
+            <span>Saved Articles</span>
+          </a>
+        </nav>
 
-      <!-- View 1: News Board Grid -->
-      <section id="view-news" class="view-panel active">
-        <!-- Mobile-only trigger to open the filters panel -->
-        <button id="filters-toggle-btn" class="filters-toggle-btn" aria-label="Open filters" aria-expanded="false" aria-controls="filters-panel">
-          <i class="fa-solid fa-sliders"></i> Filters
-        </button>
+        <div class="sidebar-footer"></div>
+      </aside>
 
-        <!-- Backdrop shown behind the sliding filters panel on mobile -->
-        <div id="filters-overlay" class="filters-overlay"></div>
-
-        <div id="filters-panel" class="filters-panel">
-          <div class="filters-panel-header">
-            <span class="filters-panel-title">Filters</span>
-            <button id="filters-close-btn" class="filters-close-btn" aria-label="Close filters">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-
-          <!-- Source Filter Block -->
-          <div class="filter-container filter-source-block">
-            <div class="filter-row">
-              <span class="filter-label">Source:</span>
-              <div class="filter-tags filter-tags-wrap" id="filter-source">
-                <span class="filter-tag active" data-filter="all">All Sources</span>
-                <!-- International Bodies -->
-                <span class="filter-tag" data-filter="IMO">IMO</span>
-                <span class="filter-tag" data-filter="ILO">ILO</span>
-                <!-- Classification Societies -->
-                <span class="filter-tag" data-filter="DNV">DNV</span>
-                <span class="filter-tag" data-filter="Lloyd's Register">Lloyd's Register</span>
-                <span class="filter-tag" data-filter="ABS">ABS</span>
-                <!-- Industry Associations & P&I -->
-                <span class="filter-tag" data-filter="BIMCO">BIMCO</span>
-                <span class="filter-tag" data-filter="ICS">ICS</span>
-                <span class="filter-tag" data-filter="Gard P&I">Gard P&I</span>
-                <span class="filter-tag" data-filter="UK P&I Club">UK P&I Club</span>
-                <!-- Maritime Media -->
-                <span class="filter-tag" data-filter="Safety4Sea">Safety4Sea</span>
-                <span class="filter-tag" data-filter="TradeWinds">TradeWinds</span>
-                <!-- Government / Port State -->
-                <span class="filter-tag" data-filter="USCG">USCG</span>
-                <span class="filter-tag" data-filter="EMSA">EMSA</span>
-                <!-- Flag Administrations -->
-                <span class="filter-tag" data-filter="Singapore MPA">Singapore MPA</span>
-                <span class="filter-tag" data-filter="Malta Transport">Malta Transport</span>
-                <span class="filter-tag" data-filter="Hong Kong MARDEP">HK MARDEP</span>
-                <span class="filter-tag" data-filter="Panama AMP">Panama AMP</span>
-              </div>
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Top Header -->
+        <header class="dashboard-header">
+          <div class="header-welcome">
+            <h1 id="view-title">Maritime News Board</h1>
+            <!-- Theme Toggle: pinned to the header's top-right corner at every breakpoint -->
+            <div class="header-theme-toggle">
+              <button
+                id="mobile-theme-toggle"
+                class="theme-toggle-btn"
+                title="Toggle Theme"
+                aria-label="Toggle Theme"
+              >
+                <i class="fa-solid fa-moon"></i>
+              </button>
             </div>
+            <p id="view-subtitle">
+              Summarized updates from major Maritime Organisations & Conventions
+            </p>
           </div>
 
-          <!-- Category / Impact / Layout Filter Block -->
-          <div class="filter-container">
-            <!-- Filter by Category -->
-            <div class="filter-row">
-              <span class="filter-label">Category:</span>
-              <div class="filter-tags" id="filter-category">
-                <span class="filter-tag active" data-filter="all">All Categories</span>
-                <span class="filter-tag" data-filter="Environmental">Environmental</span>
-                <span class="filter-tag" data-filter="Safety">Safety</span>
-                <span class="filter-tag" data-filter="Crew Welfare">Crew Welfare</span>
-                <span class="filter-tag" data-filter="Operations">Operations</span>
-                <span class="filter-tag" data-filter="Security">Security</span>
-                <span class="filter-tag" data-filter="Commercial">Commercial</span>
-              </div>
+          <div class="header-actions">
+            <!-- Update News Action -->
+            <div class="update-action-group">
+              <button
+                id="btn-update-news"
+                class="update-btn"
+                title="Parse sources for updates"
+              >
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Update News</span>
+              </button>
+              <span id="last-update-time" class="last-update-time"
+                >Last checked: 2026-06-22 13:25</span
+              >
             </div>
 
-            <!-- Filter by Impact -->
-            <div class="filter-row">
-              <span class="filter-label">Impact Level:</span>
-              <div class="filter-tags" id="filter-impact">
-                <span class="filter-tag active" data-filter="all">All Impacts</span>
-                <span class="filter-tag" data-filter="High">High</span>
-                <span class="filter-tag" data-filter="Medium">Medium</span>
-                <span class="filter-tag" data-filter="Low">Low</span>
-              </div>
+            <!-- Search Wrapper -->
+            <div class="search-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                id="search-bar"
+                class="search-input"
+                placeholder="Search regulations, conventions..."
+              />
             </div>
+          </div>
+        </header>
 
-            <!-- Card Layout Selector -->
-            <div class="filter-row">
-              <span class="filter-label">Layout Mode:</span>
-              <div class="filter-tags" id="layout-selectors">
-                <span class="filter-tag active" data-layout="big"><i class="fa-solid fa-table-cells-large"></i> Large Cards</span>
-                <span class="filter-tag" data-layout="small"><i class="fa-solid fa-table-cells"></i> Compact Cards</span>
-                <span class="filter-tag" data-layout="list"><i class="fa-solid fa-list"></i> List View</span>
-              </div>
+        <!-- Ticker / Regulatory Alert Banner -->
+        <div class="ticker-section">
+          <div class="ticker-title">
+            <i class="fa-solid fa-triangle-exclamation"></i> Critical Alerts
+          </div>
+          <div class="ticker-banner" id="ticker-banner">
+            <div class="ticker-scroll" id="ticker-scroll-content">
+              <!-- Populated by JavaScript -->
             </div>
           </div>
         </div>
 
-        <!-- News Board Cards Grid -->
-        <div class="news-grid" id="news-grid-container">
-          <!-- Dynamic News Cards will be loaded here -->
-        </div>
-      </section>
+        <!-- Stat Counter Cards -->
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">Total Updates</span>
+              <span class="stat-number" id="stat-total-updates">0</span>
+            </div>
+            <div class="stat-icon">
+              <i class="fa-solid fa-database"></i>
+            </div>
+          </div>
 
-      <!-- View 2: Regulatory Timeline -->
-      <section id="view-timeline" class="view-panel">
-        <div class="timeline-wrapper" id="timeline-container">
-          <div class="timeline-line"></div>
-          <!-- Timeline Items will be loaded here -->
-        </div>
-      </section>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">High Impact</span>
+              <span class="stat-number" id="stat-high-impact">0</span>
+            </div>
+            <div class="stat-icon">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+          </div>
 
-      <!-- View 3: Study Deck -->
-      <section id="view-study" class="view-panel">
-        <div class="study-grid">
-          
-          <!-- Flashcards Panel -->
-          <div class="study-column">
-            <h2 class="study-section-title"><i class="fa-solid fa-clone"></i> Revision Flashcards</h2>
-            <div class="flashcard-carousel-container">
-              <div class="flashcard-wrapper" id="flashcard-wrapper">
-                <div class="flashcard" id="flashcard">
-                  
-                  <div class="flashcard-face flashcard-front">
-                    <span class="flashcard-label" id="flashcard-category">Regulatory Standard</span>
-                    <p class="flashcard-text" id="flashcard-front-text">Question Front Text</p>
-                    <span class="flashcard-hint"><i class="fa-solid fa-rotate"></i> Click to flip</span>
-                  </div>
-                  
-                  <div class="flashcard-face flashcard-back">
-                    <span class="flashcard-label">Explanation & Answer</span>
-                    <p class="flashcard-text" id="flashcard-back-text">Answer Back Text</p>
-                    <span class="flashcard-hint"><i class="fa-solid fa-rotate"></i> Click to flip back</span>
-                  </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">Study Questions</span>
+              <span class="stat-number" id="stat-quiz-questions">0</span>
+            </div>
+            <div class="stat-icon">
+              <i class="fa-solid fa-circle-question"></i>
+            </div>
+          </div>
 
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">Saved items</span>
+              <span class="stat-number" id="stat-saved-items">0</span>
+            </div>
+            <div class="stat-icon">
+              <i class="fa-solid fa-bookmark"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 1: News Board Grid -->
+        <section id="view-news" class="view-panel active">
+          <!-- Mobile-only trigger to open the filters panel -->
+          <button
+            id="filters-toggle-btn"
+            class="filters-toggle-btn"
+            aria-label="Open filters"
+            aria-expanded="false"
+            aria-controls="filters-panel"
+          >
+            <i class="fa-solid fa-sliders"></i> Filters
+          </button>
+
+          <!-- Backdrop shown behind the sliding filters panel on mobile -->
+          <div id="filters-overlay" class="filters-overlay"></div>
+
+          <div id="filters-panel" class="filters-panel">
+            <div class="filters-panel-header">
+              <span class="filters-panel-title">Filters</span>
+              <button
+                id="filters-close-btn"
+                class="filters-close-btn"
+                aria-label="Close filters"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <!-- Source Filter Block -->
+            <div class="filter-container filter-source-block">
+              <div class="filter-row">
+                <span class="filter-label">Source:</span>
+                <div class="filter-tags filter-tags-wrap" id="filter-source">
+                  <span class="filter-tag active" data-filter="all"
+                    >All Sources</span
+                  >
+                  <!-- International Bodies -->
+                  <span class="filter-tag" data-filter="IMO">IMO</span>
+                  <span class="filter-tag" data-filter="ILO">ILO</span>
+                  <!-- Classification Societies -->
+                  <span class="filter-tag" data-filter="DNV">DNV</span>
+                  <span class="filter-tag" data-filter="Lloyd's Register"
+                    >Lloyd's Register</span
+                  >
+                  <span class="filter-tag" data-filter="ABS">ABS</span>
+                  <!-- Industry Associations & P&I -->
+                  <span class="filter-tag" data-filter="BIMCO">BIMCO</span>
+                  <span class="filter-tag" data-filter="ICS">ICS</span>
+                  <span class="filter-tag" data-filter="Gard P&I"
+                    >Gard P&I</span
+                  >
+                  <span class="filter-tag" data-filter="UK P&I Club"
+                    >UK P&I Club</span
+                  >
+                  <!-- Maritime Media -->
+                  <span class="filter-tag" data-filter="Safety4Sea"
+                    >Safety4Sea</span
+                  >
+                  <span class="filter-tag" data-filter="TradeWinds"
+                    >TradeWinds</span
+                  >
+                  <!-- Government / Port State -->
+                  <span class="filter-tag" data-filter="USCG">USCG</span>
+                  <span class="filter-tag" data-filter="EMSA">EMSA</span>
+                  <!-- Flag Administrations -->
+                  <span class="filter-tag" data-filter="Singapore MPA"
+                    >Singapore MPA</span
+                  >
+                  <span class="filter-tag" data-filter="Malta Transport"
+                    >Malta Transport</span
+                  >
+                  <span class="filter-tag" data-filter="Hong Kong MARDEP"
+                    >HK MARDEP</span
+                  >
+                  <span class="filter-tag" data-filter="Panama AMP"
+                    >Panama AMP</span
+                  >
                 </div>
               </div>
-              
-              <div class="carousel-controls">
-                <button class="carousel-btn" id="prev-flashcard-btn" aria-label="Previous Flashcard"><i class="fa-solid fa-arrow-left"></i></button>
-                <span class="carousel-indicator" id="flashcard-counter">1 / 10</span>
-                <button class="carousel-btn" id="next-flashcard-btn" aria-label="Next Flashcard"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Category / Impact / Layout Filter Block -->
+            <div class="filter-container">
+              <!-- Filter by Category -->
+              <div class="filter-row">
+                <span class="filter-label">Category:</span>
+                <div class="filter-tags" id="filter-category">
+                  <span class="filter-tag active" data-filter="all"
+                    >All Categories</span
+                  >
+                  <span class="filter-tag" data-filter="Environmental"
+                    >Environmental</span
+                  >
+                  <span class="filter-tag" data-filter="Safety">Safety</span>
+                  <span class="filter-tag" data-filter="Crew Welfare"
+                    >Crew Welfare</span
+                  >
+                  <span class="filter-tag" data-filter="Operations"
+                    >Operations</span
+                  >
+                  <span class="filter-tag" data-filter="Security"
+                    >Security</span
+                  >
+                  <span class="filter-tag" data-filter="Commercial"
+                    >Commercial</span
+                  >
+                </div>
+              </div>
+
+              <!-- Filter by Impact -->
+              <div class="filter-row">
+                <span class="filter-label">Impact Level:</span>
+                <div class="filter-tags" id="filter-impact">
+                  <span class="filter-tag active" data-filter="all"
+                    >All Impacts</span
+                  >
+                  <span class="filter-tag" data-filter="High">High</span>
+                  <span class="filter-tag" data-filter="Medium">Medium</span>
+                  <span class="filter-tag" data-filter="Low">Low</span>
+                </div>
+              </div>
+
+              <!-- Card Layout Selector -->
+              <div class="filter-row">
+                <span class="filter-label">Layout Mode:</span>
+                <div class="filter-tags" id="layout-selectors">
+                  <span class="filter-tag active" data-layout="big"
+                    ><i class="fa-solid fa-table-cells-large"></i> Large
+                    Cards</span
+                  >
+                  <span class="filter-tag" data-layout="small"
+                    ><i class="fa-solid fa-table-cells"></i> Compact Cards</span
+                  >
+                  <span class="filter-tag" data-layout="list"
+                    ><i class="fa-solid fa-list"></i> List View</span
+                  >
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Interactive Quiz Panel -->
-          <div class="study-column">
-            <h2 class="study-section-title"><i class="fa-solid fa-square-poll-horizontal"></i> Quick Knowledge Check</h2>
-            <div class="quiz-container" id="quiz-container">
-              
-              <div class="quiz-header">
-                <span class="quiz-question-num" id="quiz-question-num">Question 1 of 5</span>
-                <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
-              </div>
-              
-              <p class="quiz-question" id="quiz-question-text">Quiz question content?</p>
-              
-              <div class="quiz-options" id="quiz-options-container">
-                <!-- Dynamically generated multiple choice buttons -->
-              </div>
-              
-              <div class="quiz-feedback" id="quiz-feedback">
-                <div class="quiz-feedback-title" id="quiz-feedback-title">Correct!</div>
-                <div class="quiz-feedback-text" id="quiz-feedback-text">Explanation content.</div>
-              </div>
-              
-              <div class="quiz-actions">
-                <button class="quiz-next-btn" id="quiz-next-btn">Next Question <i class="fa-solid fa-circle-arrow-right"></i></button>
-                <button class="quiz-restart-btn" id="quiz-restart-btn">Restart Quiz <i class="fa-solid fa-rotate-left"></i></button>
-              </div>
+          <!-- News Board Cards Grid -->
+          <div class="news-grid" id="news-grid-container">
+            <!-- Dynamic News Cards will be loaded here -->
+          </div>
+        </section>
 
+        <!-- View 2: Regulatory Timeline -->
+        <section id="view-timeline" class="view-panel">
+          <div class="timeline-wrapper" id="timeline-container">
+            <div class="timeline-line"></div>
+            <!-- Timeline Items will be loaded here -->
+          </div>
+        </section>
+
+        <!-- View 3: Study Deck -->
+        <section id="view-study" class="view-panel">
+          <div class="study-grid">
+            <!-- Flashcards Panel -->
+            <div class="study-column">
+              <h2 class="study-section-title">
+                <i class="fa-solid fa-clone"></i> Revision Flashcards
+              </h2>
+              <div class="flashcard-carousel-container">
+                <div class="flashcard-wrapper" id="flashcard-wrapper">
+                  <div class="flashcard" id="flashcard">
+                    <div class="flashcard-face flashcard-front">
+                      <span class="flashcard-label" id="flashcard-category"
+                        >Regulatory Standard</span
+                      >
+                      <p class="flashcard-text" id="flashcard-front-text">
+                        Question Front Text
+                      </p>
+                      <span class="flashcard-hint"
+                        ><i class="fa-solid fa-rotate"></i> Click to flip</span
+                      >
+                    </div>
+
+                    <div class="flashcard-face flashcard-back">
+                      <span class="flashcard-label">Explanation & Answer</span>
+                      <p class="flashcard-text" id="flashcard-back-text">
+                        Answer Back Text
+                      </p>
+                      <span class="flashcard-hint"
+                        ><i class="fa-solid fa-rotate"></i> Click to flip
+                        back</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div class="carousel-controls">
+                  <button
+                    class="carousel-btn"
+                    id="prev-flashcard-btn"
+                    aria-label="Previous Flashcard"
+                  >
+                    <i class="fa-solid fa-arrow-left"></i>
+                  </button>
+                  <span class="carousel-indicator" id="flashcard-counter"
+                    >1 / 10</span
+                  >
+                  <button
+                    class="carousel-btn"
+                    id="next-flashcard-btn"
+                    aria-label="Next Flashcard"
+                  >
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Quiz Panel -->
+            <div class="study-column">
+              <h2 class="study-section-title">
+                <i class="fa-solid fa-square-poll-horizontal"></i> Quick
+                Knowledge Check
+              </h2>
+              <div class="quiz-container" id="quiz-container">
+                <div class="quiz-header">
+                  <span class="quiz-question-num" id="quiz-question-num"
+                    >Question 1 of 5</span
+                  >
+                  <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
+                </div>
+
+                <p class="quiz-question" id="quiz-question-text">
+                  Quiz question content?
+                </p>
+
+                <div class="quiz-options" id="quiz-options-container">
+                  <!-- Dynamically generated multiple choice buttons -->
+                </div>
+
+                <div class="quiz-feedback" id="quiz-feedback">
+                  <div class="quiz-feedback-title" id="quiz-feedback-title">
+                    Correct!
+                  </div>
+                  <div class="quiz-feedback-text" id="quiz-feedback-text">
+                    Explanation content.
+                  </div>
+                </div>
+
+                <div class="quiz-actions">
+                  <button class="quiz-next-btn" id="quiz-next-btn">
+                    Next Question <i class="fa-solid fa-circle-arrow-right"></i>
+                  </button>
+                  <button class="quiz-restart-btn" id="quiz-restart-btn">
+                    Restart Quiz <i class="fa-solid fa-rotate-left"></i>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
 
-        </div>
-      </section>
-
-      <!-- View 4: Bookmarks / Reading List -->
-      <section id="view-bookmarks" class="view-panel">
-        <div class="news-grid" id="bookmarks-grid-container">
-          <!-- Dynamic Bookmarked Cards will be loaded here -->
-        </div>
-        <div class="empty-state" id="bookmarks-empty-state" style="display: none;">
-          <div class="empty-icon"><i class="fa-regular fa-bookmark"></i></div>
-          <h3 class="empty-title">Your Study Pack is Empty</h3>
-          <p class="empty-desc">Bookmark major regulations and industry updates on the News Board to save them here for offline study or review.</p>
-          <button class="empty-action-btn" id="bookmarks-browse-btn">Browse Regulations</button>
-        </div>
-      </section>
-
-    </main>
-
-  </div>
-
-  <!-- Details Drawer Overlay -->
-  <div class="drawer-overlay" id="drawer-overlay">
-    <div class="drawer" id="details-drawer">
-      
-      <div class="drawer-header">
-        <div class="drawer-title-area">
-          <div class="badge-container" id="drawer-badges">
-            <!-- Dynamic Badges -->
+        <!-- View 4: Bookmarks / Reading List -->
+        <section id="view-bookmarks" class="view-panel">
+          <div class="news-grid" id="bookmarks-grid-container">
+            <!-- Dynamic Bookmarked Cards will be loaded here -->
           </div>
-          <h2 class="drawer-title" id="drawer-title">Regulation Title</h2>
-        </div>
-        <button class="close-drawer-btn" id="close-drawer-btn" aria-label="Close Details">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
+          <div
+            class="empty-state"
+            id="bookmarks-empty-state"
+            style="display: none"
+          >
+            <div class="empty-icon"><i class="fa-regular fa-bookmark"></i></div>
+            <h3 class="empty-title">Your Study Pack is Empty</h3>
+            <p class="empty-desc">
+              Bookmark major regulations and industry updates on the News Board
+              to save them here for offline study or review.
+            </p>
+            <button class="empty-action-btn" id="bookmarks-browse-btn">
+              Browse Regulations
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
 
-      <div class="drawer-body">
-        
-        <!-- Metadata cards -->
-        <div class="drawer-meta-row">
-          <div class="meta-item">
-            <span class="meta-label">Authority</span>
-            <span class="meta-value" id="drawer-meta-source">IMO</span>
+    <!-- Details Drawer Overlay -->
+    <div class="drawer-overlay" id="drawer-overlay">
+      <div class="drawer" id="details-drawer">
+        <div class="drawer-header">
+          <div class="drawer-title-area">
+            <div class="badge-container" id="drawer-badges">
+              <!-- Dynamic Badges -->
+            </div>
+            <h2 class="drawer-title" id="drawer-title">Regulation Title</h2>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">Convention</span>
-            <span class="meta-value" id="drawer-meta-convention">MARPOL Annex VI</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Published</span>
-            <span class="meta-value" id="drawer-meta-publish">2026-04-15</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Enforced From</span>
-            <span class="meta-value" id="drawer-meta-enforced">2026-07-01</span>
-          </div>
-        </div>
-
-        <!-- Summary Section -->
-        <div class="drawer-section">
-          <h3 class="drawer-section-title">Regulatory Summary</h3>
-          <p class="summary-text" id="drawer-summary-text">
-            Full summary text goes here...
-          </p>
-        </div>
-
-        <!-- Key Takeaways Section -->
-        <div class="drawer-section">
-          <h3 class="drawer-section-title">Key Compliance Takeaways</h3>
-          <ul class="takeaway-list" id="drawer-takeaways-list">
-            <!-- List items -->
-          </ul>
-        </div>
-
-        <!-- Study Deck Jump Panel -->
-        <div class="study-shortcut-panel" id="study-shortcut-panel">
-          <div class="study-shortcut-text">
-            Ready to test your knowledge on this regulation?
-          </div>
-          <button class="study-shortcut-btn" id="study-shortcut-btn">
-            Study Now <i class="fa-solid fa-angle-right"></i>
+          <button
+            class="close-drawer-btn"
+            id="close-drawer-btn"
+            aria-label="Close Details"
+          >
+            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        <!-- Source Attribution Link -->
-        <div class="drawer-source-attribution" id="drawer-source-attribution">
-          <span class="source-label">Source Document:</span>
-          <a href="#" id="drawer-source-link" target="_blank" rel="noopener noreferrer">
-            <span id="drawer-source-link-text">Visit Official Portal</span> 
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          </a>
+        <div class="drawer-body">
+          <!-- Metadata cards -->
+          <div class="drawer-meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Authority</span>
+              <span class="meta-value" id="drawer-meta-source">IMO</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Convention</span>
+              <span class="meta-value" id="drawer-meta-convention"
+                >MARPOL Annex VI</span
+              >
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Published</span>
+              <span class="meta-value" id="drawer-meta-publish"
+                >2026-04-15</span
+              >
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Enforced From</span>
+              <span class="meta-value" id="drawer-meta-enforced"
+                >2026-07-01</span
+              >
+            </div>
+          </div>
+
+          <!-- Summary Section -->
+          <div class="drawer-section">
+            <h3 class="drawer-section-title">Regulatory Summary</h3>
+            <p class="summary-text" id="drawer-summary-text">
+              Full summary text goes here...
+            </p>
+          </div>
+
+          <!-- Key Takeaways Section -->
+          <div class="drawer-section">
+            <h3 class="drawer-section-title">Key Compliance Takeaways</h3>
+            <ul class="takeaway-list" id="drawer-takeaways-list">
+              <!-- List items -->
+            </ul>
+          </div>
+
+          <!-- Study Deck Jump Panel -->
+          <div class="study-shortcut-panel" id="study-shortcut-panel">
+            <div class="study-shortcut-text">
+              Ready to test your knowledge on this regulation?
+            </div>
+            <button class="study-shortcut-btn" id="study-shortcut-btn">
+              Study Now <i class="fa-solid fa-angle-right"></i>
+            </button>
+          </div>
+
+          <!-- Source Attribution Link -->
+          <div class="drawer-source-attribution" id="drawer-source-attribution">
+            <span class="source-label">Source Document:</span>
+            <a
+              href="#"
+              id="drawer-source-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span id="drawer-source-link-text">Visit Official Portal</span>
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
         </div>
-
       </div>
-
     </div>
-  </div>
 
-  <!-- Toast Logger Alert Container -->
-  <div id="toast-container" class="toast-container"></div>
+    <!-- Toast Logger Alert Container -->
+    <div id="toast-container" class="toast-container"></div>
 
-  <!-- Scripts -->
-  <script src="data.js"></script>
-  <script src="app.js"></script>
-</body>
+    <!-- Scripts -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
