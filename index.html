@@ -137,73 +137,90 @@
 
       <!-- View 1: News Board Grid -->
       <section id="view-news" class="view-panel active">
-        <!-- Source Filter Block -->
-        <div class="filter-container filter-source-block">
-          <div class="filter-row">
-            <span class="filter-label">Source:</span>
-            <div class="filter-tags filter-tags-wrap" id="filter-source">
-              <span class="filter-tag active" data-filter="all">All Sources</span>
-              <!-- International Bodies -->
-              <span class="filter-tag" data-filter="IMO">IMO</span>
-              <span class="filter-tag" data-filter="ILO">ILO</span>
-              <!-- Classification Societies -->
-              <span class="filter-tag" data-filter="DNV">DNV</span>
-              <span class="filter-tag" data-filter="Lloyd's Register">Lloyd's Register</span>
-              <span class="filter-tag" data-filter="ABS">ABS</span>
-              <!-- Industry Associations & P&I -->
-              <span class="filter-tag" data-filter="BIMCO">BIMCO</span>
-              <span class="filter-tag" data-filter="ICS">ICS</span>
-              <span class="filter-tag" data-filter="Gard P&I">Gard P&I</span>
-              <span class="filter-tag" data-filter="UK P&I Club">UK P&I Club</span>
-              <!-- Maritime Media -->
-              <span class="filter-tag" data-filter="Safety4Sea">Safety4Sea</span>
-              <span class="filter-tag" data-filter="TradeWinds">TradeWinds</span>
-              <!-- Government / Port State -->
-              <span class="filter-tag" data-filter="USCG">USCG</span>
-              <span class="filter-tag" data-filter="EMSA">EMSA</span>
-              <!-- Flag Administrations -->
-              <span class="filter-tag" data-filter="Singapore MPA">Singapore MPA</span>
-              <span class="filter-tag" data-filter="Malta Transport">Malta Transport</span>
-              <span class="filter-tag" data-filter="Hong Kong MARDEP">HK MARDEP</span>
-              <span class="filter-tag" data-filter="Panama AMP">Panama AMP</span>
-            </div>
-          </div>
-        </div>
+        <!-- Mobile-only trigger to open the filters panel -->
+        <button id="filters-toggle-btn" class="filters-toggle-btn" aria-label="Open filters" aria-expanded="false" aria-controls="filters-panel">
+          <i class="fa-solid fa-sliders"></i> Filters
+        </button>
 
-        <!-- Category / Impact / Layout Filter Block -->
-        <div class="filter-container">
-          <!-- Filter by Category -->
-          <div class="filter-row">
-            <span class="filter-label">Category:</span>
-            <div class="filter-tags" id="filter-category">
-              <span class="filter-tag active" data-filter="all">All Categories</span>
-              <span class="filter-tag" data-filter="Environmental">Environmental</span>
-              <span class="filter-tag" data-filter="Safety">Safety</span>
-              <span class="filter-tag" data-filter="Crew Welfare">Crew Welfare</span>
-              <span class="filter-tag" data-filter="Operations">Operations</span>
-              <span class="filter-tag" data-filter="Security">Security</span>
-              <span class="filter-tag" data-filter="Commercial">Commercial</span>
-            </div>
+        <!-- Backdrop shown behind the sliding filters panel on mobile -->
+        <div id="filters-overlay" class="filters-overlay"></div>
+
+        <div id="filters-panel" class="filters-panel">
+          <div class="filters-panel-header">
+            <span class="filters-panel-title">Filters</span>
+            <button id="filters-close-btn" class="filters-close-btn" aria-label="Close filters">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
           </div>
 
-          <!-- Filter by Impact -->
-          <div class="filter-row">
-            <span class="filter-label">Impact Level:</span>
-            <div class="filter-tags" id="filter-impact">
-              <span class="filter-tag active" data-filter="all">All Impacts</span>
-              <span class="filter-tag" data-filter="High">High</span>
-              <span class="filter-tag" data-filter="Medium">Medium</span>
-              <span class="filter-tag" data-filter="Low">Low</span>
+          <!-- Source Filter Block -->
+          <div class="filter-container filter-source-block">
+            <div class="filter-row">
+              <span class="filter-label">Source:</span>
+              <div class="filter-tags filter-tags-wrap" id="filter-source">
+                <span class="filter-tag active" data-filter="all">All Sources</span>
+                <!-- International Bodies -->
+                <span class="filter-tag" data-filter="IMO">IMO</span>
+                <span class="filter-tag" data-filter="ILO">ILO</span>
+                <!-- Classification Societies -->
+                <span class="filter-tag" data-filter="DNV">DNV</span>
+                <span class="filter-tag" data-filter="Lloyd's Register">Lloyd's Register</span>
+                <span class="filter-tag" data-filter="ABS">ABS</span>
+                <!-- Industry Associations & P&I -->
+                <span class="filter-tag" data-filter="BIMCO">BIMCO</span>
+                <span class="filter-tag" data-filter="ICS">ICS</span>
+                <span class="filter-tag" data-filter="Gard P&I">Gard P&I</span>
+                <span class="filter-tag" data-filter="UK P&I Club">UK P&I Club</span>
+                <!-- Maritime Media -->
+                <span class="filter-tag" data-filter="Safety4Sea">Safety4Sea</span>
+                <span class="filter-tag" data-filter="TradeWinds">TradeWinds</span>
+                <!-- Government / Port State -->
+                <span class="filter-tag" data-filter="USCG">USCG</span>
+                <span class="filter-tag" data-filter="EMSA">EMSA</span>
+                <!-- Flag Administrations -->
+                <span class="filter-tag" data-filter="Singapore MPA">Singapore MPA</span>
+                <span class="filter-tag" data-filter="Malta Transport">Malta Transport</span>
+                <span class="filter-tag" data-filter="Hong Kong MARDEP">HK MARDEP</span>
+                <span class="filter-tag" data-filter="Panama AMP">Panama AMP</span>
+              </div>
             </div>
           </div>
 
-          <!-- Card Layout Selector -->
-          <div class="filter-row">
-            <span class="filter-label">Layout Mode:</span>
-            <div class="filter-tags" id="layout-selectors">
-              <span class="filter-tag active" data-layout="big"><i class="fa-solid fa-table-cells-large"></i> Large Cards</span>
-              <span class="filter-tag" data-layout="small"><i class="fa-solid fa-table-cells"></i> Compact Cards</span>
-              <span class="filter-tag" data-layout="list"><i class="fa-solid fa-list"></i> List View</span>
+          <!-- Category / Impact / Layout Filter Block -->
+          <div class="filter-container">
+            <!-- Filter by Category -->
+            <div class="filter-row">
+              <span class="filter-label">Category:</span>
+              <div class="filter-tags" id="filter-category">
+                <span class="filter-tag active" data-filter="all">All Categories</span>
+                <span class="filter-tag" data-filter="Environmental">Environmental</span>
+                <span class="filter-tag" data-filter="Safety">Safety</span>
+                <span class="filter-tag" data-filter="Crew Welfare">Crew Welfare</span>
+                <span class="filter-tag" data-filter="Operations">Operations</span>
+                <span class="filter-tag" data-filter="Security">Security</span>
+                <span class="filter-tag" data-filter="Commercial">Commercial</span>
+              </div>
+            </div>
+
+            <!-- Filter by Impact -->
+            <div class="filter-row">
+              <span class="filter-label">Impact Level:</span>
+              <div class="filter-tags" id="filter-impact">
+                <span class="filter-tag active" data-filter="all">All Impacts</span>
+                <span class="filter-tag" data-filter="High">High</span>
+                <span class="filter-tag" data-filter="Medium">Medium</span>
+                <span class="filter-tag" data-filter="Low">Low</span>
+              </div>
+            </div>
+
+            <!-- Card Layout Selector -->
+            <div class="filter-row">
+              <span class="filter-label">Layout Mode:</span>
+              <div class="filter-tags" id="layout-selectors">
+                <span class="filter-tag active" data-layout="big"><i class="fa-solid fa-table-cells-large"></i> Large Cards</span>
+                <span class="filter-tag" data-layout="small"><i class="fa-solid fa-table-cells"></i> Compact Cards</span>
+                <span class="filter-tag" data-layout="list"><i class="fa-solid fa-list"></i> List View</span>
+              </div>
             </div>
           </div>
         </div>

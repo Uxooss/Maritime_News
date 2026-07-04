@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
     filterSource: document.getElementById("filter-source"),
     filterCategory: document.getElementById("filter-category"),
     filterImpact: document.getElementById("filter-impact"),
+    filtersPanel: document.getElementById("filters-panel"),
+    filtersOverlay: document.getElementById("filters-overlay"),
+    filtersToggleBtn: document.getElementById("filters-toggle-btn"),
+    filtersCloseBtn: document.getElementById("filters-close-btn"),
     
     // Grids
     newsGrid: document.getElementById("news-grid-container"),
@@ -152,6 +156,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- UTILITIES & TOAST SYSTEM ---
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function formatDate(d) {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -237,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         showToast(
           "Update Complete", 
-          `Discovered new regulation: "${newItem.title}". Added to News Board.`, 
+          `Discovered new regulation: "${escapeHtml(newItem.title)}". Added to News Board.`, 
           "success"
         );
         
@@ -361,8 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(a => `
         <span class="ticker-item">
           <i class="fa-solid fa-circle-info" style="color: ${a.impact === 'High' ? 'var(--alert-high)' : 'var(--alert-medium)'}"></i> 
-          <strong>[${a.source} ${a.convention}]</strong> ${a.title} 
-          (Enforced: ${a.implementationDate})
+          <strong>[${escapeHtml(a.source)} ${escapeHtml(a.convention)}]</strong> ${escapeHtml(a.title)} 
+          (Enforced: ${escapeHtml(a.implementationDate)})
         </span>
       `);
     
@@ -410,6 +424,22 @@ document.addEventListener("DOMContentLoaded", () => {
     setupFilterGroup(DOM.filterCategory, "category");
     setupFilterGroup(DOM.filterImpact, "impact");
 
+    // Delegated clicks for card grids (open drawer / toggle bookmark)
+    if (DOM.newsGrid) DOM.newsGrid.addEventListener("click", handleGridClick);
+    if (DOM.bookmarksGrid) DOM.bookmarksGrid.addEventListener("click", handleGridClick);
+    if (DOM.timelineContainer) DOM.timelineContainer.addEventListener("click", handleGridClick);
+
+    // Mobile filters panel: open, close, and backdrop dismiss
+    if (DOM.filtersToggleBtn) {
+      DOM.filtersToggleBtn.addEventListener("click", () => openFiltersPanel());
+    }
+    if (DOM.filtersCloseBtn) {
+      DOM.filtersCloseBtn.addEventListener("click", () => closeFiltersPanel());
+    }
+    if (DOM.filtersOverlay) {
+      DOM.filtersOverlay.addEventListener("click", () => closeFiltersPanel());
+    }
+
     // Close Details Drawer
     if (DOM.closeDrawerBtn) {
       DOM.closeDrawerBtn.addEventListener("click", closeDrawer);
@@ -426,6 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         closeDrawer();
+        closeFiltersPanel();
       }
     });
 
@@ -614,6 +645,98 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- SHARED CARD TEMPLATE ---
+  // Renders one news card. `mode` controls only the copy/state differences
+  // between the News Board and the Bookmarks view; the markup itself is
+  // built in exactly one place instead of being duplicated per view/layout.
+  function cardTemplate(item, { isSaved, learnMoreLabel, bookmarkLabel }) {
+    const badges = `
+      <div class="badge-container">
+        <span class="badge badge-source">${escapeHtml(item.source)}</span>
+        <span class="badge badge-category">${escapeHtml(item.category)}</span>
+        <span class="badge badge-impact ${escapeHtml(item.impact.toLowerCase())}">${escapeHtml(item.impact)} Impact</span>
+      </div>
+    `;
+
+    const bookmarkBtn = `
+      <button class="bookmark-btn ${isSaved ? 'active' : ''}" 
+              aria-label="${bookmarkLabel}" 
+              data-action="toggle-bookmark" data-id="${escapeHtml(item.id)}">
+        <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
+      </button>
+    `;
+
+    const footer = `
+      <div class="card-footer">
+        <span class="footer-date">
+          <i class="fa-regular fa-calendar"></i> Enforced: ${escapeHtml(item.implementationDate)}
+        </span>
+        ${state.cardSize === "list" ? bookmarkBtn : ""}
+        <button class="learn-more-btn">
+          ${learnMoreLabel} <i class="fa-solid fa-angle-right"></i>
+        </button>
+      </div>
+    `;
+
+    if (state.cardSize === "list") {
+      return `
+        <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}">
+          <div class="card-content">
+            ${badges}
+            <h3 class="card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h3>
+          </div>
+          ${footer}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}">
+        <div class="card-header">
+          ${badges}
+          ${bookmarkBtn}
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">${escapeHtml(item.title)}</h3>
+          <p class="card-excerpt">${escapeHtml(item.summary)}</p>
+        </div>
+        ${footer}
+      </div>
+    `;
+  }
+
+  // --- MOBILE FILTERS PANEL ---
+  function openFiltersPanel() {
+    if (!DOM.filtersPanel) return;
+    DOM.filtersPanel.classList.add("active");
+    DOM.filtersOverlay?.classList.add("active");
+    document.body.classList.add("no-scroll");
+    DOM.filtersToggleBtn?.setAttribute("aria-expanded", "true");
+  }
+
+  function closeFiltersPanel() {
+    if (!DOM.filtersPanel) return;
+    DOM.filtersPanel.classList.remove("active");
+    DOM.filtersOverlay?.classList.remove("active");
+    document.body.classList.remove("no-scroll");
+    DOM.filtersToggleBtn?.setAttribute("aria-expanded", "false");
+  }
+
+  // Single delegated handler for any grid built from cardTemplate.
+  // Replaces per-card inline onclick="" attributes.
+  function handleGridClick(e) {
+    const bookmarkBtn = e.target.closest('[data-action="toggle-bookmark"]');
+    if (bookmarkBtn) {
+      e.stopPropagation();
+      toggleBookmark(bookmarkBtn.getAttribute("data-id"), e);
+      return;
+    }
+    const card = e.target.closest('[data-action="open-drawer"]');
+    if (card) {
+      openDrawer(card.getAttribute("data-id"));
+    }
+  }
+
   // --- RENDER NEWS GRID ---
   function renderNewsGrid() {
     if (!DOM.newsGrid) return;
@@ -633,70 +756,13 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       return;
     }
-    
-    DOM.newsGrid.innerHTML = filtered.map(item => {
-      const isSaved = state.savedArticles.includes(item.id);
-      if (state.cardSize === "list") {
-        return `
-          <div class="news-card" onclick="openDrawer('${item.id}')">
-            <div class="card-content">
-              <div class="badge-container">
-                <span class="badge badge-source">${item.source}</span>
-                <span class="badge badge-category">${item.category}</span>
-                <span class="badge badge-impact ${item.impact.toLowerCase()}">${item.impact} Impact</span>
-              </div>
-              <h3 class="card-title" title="${item.title}">${item.title}</h3>
-            </div>
-            <div class="card-footer">
-              <span class="footer-date">
-                <i class="fa-regular fa-calendar"></i> Enforced: ${item.implementationDate}
-              </span>
-              <button class="bookmark-btn ${isSaved ? 'active' : ''}" 
-                      aria-label="Save Article" 
-                      onclick="event.stopPropagation(); window.toggleBookmarkExternal('${item.id}', event)">
-                <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
-              </button>
-              <button class="learn-more-btn">
-                Read Summary <i class="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      } else {
-        return `
-          <div class="news-card" onclick="openDrawer('${item.id}')">
-            <div class="card-header">
-              <div class="badge-container">
-                <span class="badge badge-source">${item.source}</span>
-                <span class="badge badge-category">${item.category}</span>
-                <span class="badge badge-impact ${item.impact.toLowerCase()}">${item.impact} Impact</span>
-              </div>
-              <button class="bookmark-btn ${isSaved ? 'active' : ''}" 
-                      aria-label="Save Article" 
-                      onclick="event.stopPropagation(); window.toggleBookmarkExternal('${item.id}', event)">
-                <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
-              </button>
-            </div>
-            <div class="card-content">
-              <h3 class="card-title">${item.title}</h3>
-              <p class="card-excerpt">${item.summary}</p>
-            </div>
-            <div class="card-footer">
-              <span class="footer-date">
-                <i class="fa-regular fa-calendar"></i> Enforced: ${item.implementationDate}
-              </span>
-              <button class="learn-more-btn">
-                Read Summary <i class="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }
-    }).join("");
-  }
 
-  // Bind toggleBookmark globally so onclick inline handlers can find it
-  window.toggleBookmarkExternal = toggleBookmark;
+    DOM.newsGrid.innerHTML = filtered.map(item => cardTemplate(item, {
+      isSaved: state.savedArticles.includes(item.id),
+      learnMoreLabel: "Read Summary",
+      bookmarkLabel: "Save Article"
+    })).join("");
+  }
 
   // --- RENDER SAVED ARTICLES GRID ---
   function renderBookmarksGrid() {
@@ -715,66 +781,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     DOM.bookmarksGrid.style.display = "grid";
     DOM.bookmarksEmptyState.style.display = "none";
-    
-    DOM.bookmarksGrid.innerHTML = saved.map(item => {
-      const isSaved = state.savedArticles.includes(item.id);
-      if (state.cardSize === "list") {
-        return `
-          <div class="news-card" onclick="openDrawer('${item.id}')">
-            <div class="card-content">
-              <div class="badge-container">
-                <span class="badge badge-source">${item.source}</span>
-                <span class="badge badge-category">${item.category}</span>
-                <span class="badge badge-impact ${item.impact.toLowerCase()}">${item.impact} Impact</span>
-              </div>
-              <h3 class="card-title" title="${item.title}">${item.title}</h3>
-            </div>
-            <div class="card-footer">
-              <span class="footer-date">
-                <i class="fa-regular fa-calendar"></i> Enforced: ${item.implementationDate}
-              </span>
-              <button class="bookmark-btn active" 
-                      aria-label="Remove Save" 
-                      onclick="event.stopPropagation(); window.toggleBookmarkExternal('${item.id}', event)">
-                <i class="fa-solid fa-bookmark"></i>
-              </button>
-              <button class="learn-more-btn">
-                Study Summary <i class="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      } else {
-        return `
-          <div class="news-card" onclick="openDrawer('${item.id}')">
-            <div class="card-header">
-              <div class="badge-container">
-                <span class="badge badge-source">${item.source}</span>
-                <span class="badge badge-category">${item.category}</span>
-                <span class="badge badge-impact ${item.impact.toLowerCase()}">${item.impact} Impact</span>
-              </div>
-              <button class="bookmark-btn active" 
-                      aria-label="Remove Save" 
-                      onclick="event.stopPropagation(); window.toggleBookmarkExternal('${item.id}', event)">
-                <i class="fa-solid fa-bookmark"></i>
-              </button>
-            </div>
-            <div class="card-content">
-              <h3 class="card-title">${item.title}</h3>
-              <p class="card-excerpt">${item.summary}</p>
-            </div>
-            <div class="card-footer">
-              <span class="footer-date">
-                <i class="fa-regular fa-calendar"></i> Enforced: ${item.implementationDate}
-              </span>
-              <button class="learn-more-btn">
-                Study Summary <i class="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }
-    }).join("");
+
+    DOM.bookmarksGrid.innerHTML = saved.map(item => cardTemplate(item, {
+      isSaved: true,
+      learnMoreLabel: "Study Summary",
+      bookmarkLabel: "Remove Save"
+    })).join("");
   }
 
   // --- RENDER TIMELINE ---
@@ -806,15 +818,15 @@ document.addEventListener("DOMContentLoaded", () => {
       timelineItem.className = `timeline-item ${isPassed ? 'passed' : ''}`;
       
       timelineItem.innerHTML = `
-        <div class="timeline-badge-date">${formatTimelineDate(item.implementationDate)}</div>
+        <div class="timeline-badge-date">${escapeHtml(formatTimelineDate(item.implementationDate))}</div>
         <div class="timeline-node" title="Status: ${isPassed ? 'Enforced' : 'Upcoming'}"></div>
-        <div class="timeline-content" onclick="openDrawer('${item.id}')">
+        <div class="timeline-content" data-action="open-drawer" data-id="${escapeHtml(item.id)}">
           <div class="timeline-content-header">
-            <span class="badge badge-source">${item.source}</span>
-            <span class="badge badge-impact ${item.impact.toLowerCase()}">${item.impact}</span>
+            <span class="badge badge-source">${escapeHtml(item.source)}</span>
+            <span class="badge badge-impact ${escapeHtml(item.impact.toLowerCase())}">${escapeHtml(item.impact)}</span>
           </div>
-          <h4 class="timeline-title">${item.title}</h4>
-          <p class="timeline-desc"><strong>Convention:</strong> ${item.convention} | <strong>Enforcement Date:</strong> ${item.implementationDate}</p>
+          <h4 class="timeline-title">${escapeHtml(item.title)}</h4>
+          <p class="timeline-desc"><strong>Convention:</strong> ${escapeHtml(item.convention)} | <strong>Enforcement Date:</strong> ${escapeHtml(item.implementationDate)}</p>
         </div>
       `;
       
@@ -879,7 +891,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Generate option buttons
     DOM.quizOptionsContainer.innerHTML = q.options.map((opt, index) => `
       <button class="quiz-option" data-idx="${index}">
-        <span>${opt}</span>
+        <span>${escapeHtml(opt)}</span>
         <i class="fa-regular fa-circle"></i>
       </button>
     `).join("");
@@ -979,9 +991,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Badges
     DOM.drawerBadges.innerHTML = `
-      <span class="badge badge-source">${article.source}</span>
-      <span class="badge badge-category">${article.category}</span>
-      <span class="badge badge-impact ${article.impact.toLowerCase()}">${article.impact} Impact</span>
+      <span class="badge badge-source">${escapeHtml(article.source)}</span>
+      <span class="badge badge-category">${escapeHtml(article.category)}</span>
+      <span class="badge badge-impact ${escapeHtml(article.impact.toLowerCase())}">${escapeHtml(article.impact)} Impact</span>
     `;
 
     DOM.drawerTitle.innerText = article.title;
@@ -994,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Key takeaways
     DOM.drawerTakeaways.innerHTML = article.keyTakeaways.map(takeaway => `
-      <li>${takeaway}</li>
+      <li>${escapeHtml(takeaway)}</li>
     `).join("");
 
     // Hook Study shortcut button
@@ -1022,9 +1034,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     document.body.style.overflow = ""; // enable background scrolling
   }
-
-  // Bind drawer opening globally
-  window.openDrawer = openDrawer;
 
   // --- STUDY DECK TARGETED FILTER ---
   function focusStudyOnArticle(articleId) {
