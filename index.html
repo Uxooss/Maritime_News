@@ -8,6 +8,7 @@
       name="description"
       content="Stay current with summarized maritime regulatory updates from IMO, ILO, DNV, Lloyd's Register, ABS, BIMCO, ICS, Gard P&I, UK P&I Club, Safety4Sea, TradeWinds, Flag Administrations (Singapore, Malta, Hong Kong, Panama), and more."
     />
+    <link rel="manifest" href="manifest.json" />
     <!-- Stylesheets -->
     <link rel="stylesheet" href="index.css" />
     <!-- FontAwesome Icons -->
@@ -374,7 +375,16 @@
                 <i class="fa-solid fa-square-poll-horizontal"></i> Quick
                 Knowledge Check
               </h2>
+              <div class="quiz-mode-selector">
+                <label class="study-checkbox-label">
+                  <input type="checkbox" id="quiz-target-bookmarks" />
+                  Study Bookmarked Only
+                </label>
+              </div>
               <div class="quiz-container" id="quiz-container">
+                <div class="quiz-progress-bar">
+                  <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+                </div>
                 <div class="quiz-header">
                   <span class="quiz-question-num" id="quiz-question-num"
                     >Question 1 of 5</span
@@ -446,13 +456,24 @@
             </div>
             <h2 class="drawer-title" id="drawer-title">Regulation Title</h2>
           </div>
-          <button
-            class="close-drawer-btn"
-            id="close-drawer-btn"
-            aria-label="Close Details"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+          <div class="drawer-header-actions">
+            <button
+              class="share-drawer-btn"
+              id="share-drawer-btn"
+              aria-label="Share Regulation"
+              title="Share"
+              style="display: none;"
+            >
+              <i class="fa-solid fa-share-nodes"></i>
+            </button>
+            <button
+              class="close-drawer-btn"
+              id="close-drawer-btn"
+              aria-label="Close Details"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
         </div>
 
         <div class="drawer-body">

@@ -123,6 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.lastUpdateTime) {
       DOM.lastUpdateTime.innerText = `Last checked: ${formatDate(new Date())}`;
     }
+
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.error('SW error', err));
+    }
     
     // Initial Render
     renderView();
@@ -247,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
       
       if (window.RESERVE_UPDATES && window.RESERVE_UPDATES.length > 0) {
         const newItem = window.RESERVE_UPDATES.shift();
+        newItem.isNew = true; // Mark as unread
         window.MARITIME_DATA.unshift(newItem);
         
         showToast(
@@ -326,9 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function extractFlashcards() {
+  function extractFlashcards(onlyBookmarks = false) {
     let list = [];
-    window.MARITIME_DATA.forEach(article => {
+    const sourceData = onlyBookmarks 
+      ? window.MARITIME_DATA.filter(a => state.savedArticles.includes(a.id))
+      : window.MARITIME_DATA;
+
+    sourceData.forEach(article => {
       if (article.flashcards) {
         article.flashcards.forEach(fc => {
           list.push({
@@ -345,9 +357,13 @@ document.addEventListener("DOMContentLoaded", () => {
     state.currentFlashcardIndex = 0;
   }
 
-  function extractQuizQuestions() {
+  function extractQuizQuestions(onlyBookmarks = false) {
     let list = [];
-    window.MARITIME_DATA.forEach(article => {
+    const sourceData = onlyBookmarks 
+      ? window.MARITIME_DATA.filter(a => state.savedArticles.includes(a.id))
+      : window.MARITIME_DATA;
+
+    sourceData.forEach(article => {
       if (article.studyQuestions) {
         article.studyQuestions.forEach(q => {
           list.push({
@@ -440,10 +456,30 @@ document.addEventListener("DOMContentLoaded", () => {
       DOM.filtersOverlay.addEventListener("click", () => closeFiltersPanel());
     }
 
-    // Close Details Drawer
+    // Close & Share Details Drawer
     if (DOM.closeDrawerBtn) {
       DOM.closeDrawerBtn.addEventListener("click", closeDrawer);
     }
+    const shareDrawerBtn = document.getElementById("share-drawer-btn");
+    if (shareDrawerBtn) {
+      shareDrawerBtn.addEventListener("click", async () => {
+        const articleTitle = DOM.drawerTitle.innerText;
+        const articleSummary = DOM.drawerSummary.innerText;
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: articleTitle,
+              text: articleSummary,
+              url: window.location.href
+            });
+            showToast("Shared", "Article shared successfully.", "success");
+          } catch (err) {
+            console.error("Error sharing", err);
+          }
+        }
+      });
+    }
+
     if (DOM.drawerOverlay) {
       DOM.drawerOverlay.addEventListener("click", (e) => {
         if (e.target === DOM.drawerOverlay) {
@@ -492,6 +528,30 @@ document.addEventListener("DOMContentLoaded", () => {
           DOM.flashcard.classList.remove("flipped");
           setTimeout(renderFlashcard, 150);
         }
+      });
+    }
+
+    // Flashcard Keyboard Navigation
+    document.addEventListener("keydown", (e) => {
+      if (state.currentView !== "study") return;
+      if (e.key === "ArrowLeft" && state.currentFlashcardIndex > 0) {
+        DOM.prevFlashcardBtn.click();
+      } else if (e.key === "ArrowRight" && state.currentFlashcardIndex < state.flashcards.length - 1) {
+        DOM.nextFlashcardBtn.click();
+      } else if (e.key === " " && DOM.flashcard) {
+        e.preventDefault();
+        DOM.flashcard.classList.toggle("flipped");
+      }
+    });
+
+    // Targeted Study Checkbox
+    const quizTargetBookmarks = document.getElementById("quiz-target-bookmarks");
+    if (quizTargetBookmarks) {
+      quizTargetBookmarks.addEventListener("change", (e) => {
+        extractFlashcards(e.target.checked);
+        extractQuizQuestions(e.target.checked);
+        renderFlashcard();
+        renderQuizQuestion();
       });
     }
 
@@ -625,7 +685,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
       }
       
-      // Search Query
+      // Search Query (Fuzzy word match)
       if (state.searchQuery) {
         const textToSearch = [
           item.title,
@@ -636,9 +696,9 @@ document.addEventListener("DOMContentLoaded", () => {
           (item.keyTakeaways || []).join(" ")
         ].join(" ").toLowerCase();
         
-        if (!textToSearch.includes(state.searchQuery)) {
-          return false;
-        }
+        const searchTerms = state.searchQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+        const matchesAll = searchTerms.every(term => textToSearch.includes(term));
+        if (!matchesAll) return false;
       }
       
       return true;
@@ -649,7 +709,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Renders one news card. `mode` controls only the copy/state differences
   // between the News Board and the Bookmarks view; the markup itself is
   // built in exactly one place instead of being duplicated per view/layout.
-  function cardTemplate(item, { isSaved, learnMoreLabel, bookmarkLabel }) {
+  function cardTemplate(item, { isSaved, learnMoreLabel, bookmarkLabel, index = 0 }) {
+    // Generate highlighted title and summary if search matches
+    let displayTitle = escapeHtml(item.title);
+    let displaySummary = escapeHtml(item.summary);
+    if (state.searchQuery) {
+      const searchTerms = state.searchQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+      searchTerms.forEach(term => {
+        const regex = new RegExp(`(${term})`, "gi");
+        displayTitle = displayTitle.replace(regex, '<span class="search-highlight">$1</span>');
+        displaySummary = displaySummary.replace(regex, '<span class="search-highlight">$1</span>');
+      });
+    }
+
+    const unreadDot = item.isNew ? `<div class="unread-indicator" title="New Update"></div>` : "";
+
     const badges = `
       <div class="badge-container">
         <span class="badge badge-source">${escapeHtml(item.source)}</span>
@@ -680,10 +754,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (state.cardSize === "list") {
       return `
-        <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}">
+        <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}" style="animation-delay: ${index * 0.05}s">
+          ${unreadDot}
           <div class="card-content">
             ${badges}
-            <h3 class="card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h3>
+            <h3 class="card-title" title="${escapeHtml(item.title)}">${displayTitle}</h3>
           </div>
           ${footer}
         </div>
@@ -691,14 +766,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `
-      <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}">
+      <div class="news-card" data-action="open-drawer" data-id="${escapeHtml(item.id)}" style="animation-delay: ${index * 0.05}s">
+        ${unreadDot}
         <div class="card-header">
           ${badges}
           ${bookmarkBtn}
         </div>
         <div class="card-content">
-          <h3 class="card-title">${escapeHtml(item.title)}</h3>
-          <p class="card-excerpt">${escapeHtml(item.summary)}</p>
+          <h3 class="card-title">${displayTitle}</h3>
+          <p class="card-excerpt">${displaySummary}</p>
         </div>
         ${footer}
       </div>
@@ -757,10 +833,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    DOM.newsGrid.innerHTML = filtered.map(item => cardTemplate(item, {
+    DOM.newsGrid.innerHTML = filtered.map((item, index) => cardTemplate(item, {
       isSaved: state.savedArticles.includes(item.id),
       learnMoreLabel: "Read Summary",
-      bookmarkLabel: "Save Article"
+      bookmarkLabel: "Save Article",
+      index: index
     })).join("");
   }
 
@@ -782,10 +859,11 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.bookmarksGrid.style.display = "grid";
     DOM.bookmarksEmptyState.style.display = "none";
 
-    DOM.bookmarksGrid.innerHTML = saved.map(item => cardTemplate(item, {
+    DOM.bookmarksGrid.innerHTML = saved.map((item, index) => cardTemplate(item, {
       isSaved: true,
       learnMoreLabel: "Study Summary",
-      bookmarkLabel: "Remove Save"
+      bookmarkLabel: "Remove Save",
+      index: index
     })).join("");
   }
 
@@ -882,6 +960,13 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.quizQuestionNum.innerText = `Question ${state.currentQuizIndex + 1} of ${state.quizQuestions.length}`;
     DOM.quizScoreText.innerText = `Score: ${state.quizScore} / ${state.currentQuizIndex}`;
     DOM.quizQuestionText.innerText = q.question;
+    
+    // Update progress bar
+    const progressFill = document.getElementById("quiz-progress-fill");
+    if (progressFill) {
+      const progressPercent = ((state.currentQuizIndex) / state.quizQuestions.length) * 100;
+      progressFill.style.width = `${progressPercent}%`;
+    }
     
     // Clear feedback and actions
     DOM.quizFeedback.style.display = "none";
@@ -988,6 +1073,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function openDrawer(articleId) {
     const article = window.MARITIME_DATA.find(a => a.id === articleId);
     if (!article) return;
+    
+    // Mark as read if it was new
+    if (article.isNew) {
+      article.isNew = false;
+      if (state.currentView === "news") renderNewsGrid();
+    }
 
     // Badges
     DOM.drawerBadges.innerHTML = `
@@ -1026,6 +1117,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Toggle drawer active classes
     DOM.drawerOverlay.classList.add("active");
     document.body.style.overflow = "hidden"; // disable background scrolling
+    
+    // Show share button if Web Share API is available
+    const shareBtn = document.getElementById("share-drawer-btn");
+    if (shareBtn) {
+      shareBtn.style.display = navigator.share ? "flex" : "none";
+    }
   }
 
   function closeDrawer() {
