@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vesselnews-v1';
+const CACHE_NAME = 'vesselnews-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

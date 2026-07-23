@@ -33,13 +33,21 @@
             <i class="fa-solid fa-newspaper"></i>
             <span>News Board</span>
           </a>
+          <a class="nav-item" data-view="psc" id="nav-psc">
+            <i class="fa-solid fa-anchor"></i>
+            <span>PSC</span>
+          </a>
+          <a class="nav-item" data-view="flags" id="nav-flags">
+            <i class="fa-solid fa-flag"></i>
+            <span>Flag States</span>
+          </a>
+          <a class="nav-item" data-view="class" id="nav-class">
+            <i class="fa-solid fa-certificate"></i>
+            <span>Class</span>
+          </a>
           <a class="nav-item" data-view="timeline" id="nav-timeline">
             <i class="fa-solid fa-timeline"></i>
             <span>Timeline</span>
-          </a>
-          <a class="nav-item" data-view="study" id="nav-study">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span>Study Deck</span>
           </a>
           <a class="nav-item" data-view="bookmarks" id="nav-bookmarks">
             <i class="fa-solid fa-bookmark"></i>
@@ -137,11 +145,21 @@
 
           <div class="stat-card">
             <div class="stat-info">
-              <span class="stat-label">Study Questions</span>
-              <span class="stat-number" id="stat-quiz-questions">0</span>
+              <span class="stat-label">Medium Impact</span>
+              <span class="stat-number" id="stat-medium-impact">0</span>
             </div>
-            <div class="stat-icon">
-              <i class="fa-solid fa-circle-question"></i>
+            <div class="stat-icon" style="color: var(--alert-medium)">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">Low Impact</span>
+              <span class="stat-number" id="stat-low-impact">0</span>
+            </div>
+            <div class="stat-icon" style="color: var(--alert-low)">
+              <i class="fa-solid fa-circle-info"></i>
             </div>
           </div>
 
@@ -186,7 +204,7 @@
 
             <!-- Source Filter Block -->
             <div class="filter-container filter-source-block">
-              <details class="filter-row filter-dropdown">
+              <details class="filter-row filter-dropdown" open>
                 <summary class="filter-label">Source:</summary>
                 <div class="filter-tags filter-tags-wrap" id="filter-source">
                   <span class="filter-tag active" data-filter="all"
@@ -217,8 +235,17 @@
                   <span class="filter-tag" data-filter="TradeWinds"
                     >TradeWinds</span
                   >
-                  <!-- Government / Port State -->
-                  <span class="filter-tag" data-filter="USCG">USCG</span>
+                  <!-- Port State Control MoUs & Government -->
+                  <span class="filter-tag" data-filter="Paris MoU" title="Європа та Північна Атлантика (parismou.org)">Paris MoU</span>
+                  <span class="filter-tag" data-filter="Tokyo MoU" title="Азійсько-Тихоокеанський регіон (tokyo-mou.org)">Tokyo MoU</span>
+                  <span class="filter-tag" data-filter="USCG" title="Берегова охорона США — окремий режим (cgmix.uscg.mil)">USCG PSC</span>
+                  <span class="filter-tag" data-filter="Black Sea MoU" title="Чорноморський регіон (bsmou.org)">Black Sea MoU</span>
+                  <span class="filter-tag" data-filter="Riyadh MoU" title="Перська затока (riyadhmou.org)">Riyadh MoU</span>
+                  <span class="filter-tag" data-filter="Indian Ocean MoU" title="Індійський океан (iomou.org)">Indian Ocean MoU</span>
+                  <span class="filter-tag" data-filter="Mediterranean MoU" title="Середземне море (medmou.org)">Mediterranean MoU</span>
+                  <span class="filter-tag" data-filter="Caribbean MoU" title="Карибський басейн (caribbeanmou.org)">Caribbean MoU</span>
+                  <span class="filter-tag" data-filter="Abuja MoU" title="Західна та Центральна Африка (abujamou.org)">Abuja MoU</span>
+                  <span class="filter-tag" data-filter="Acuerdo de Viña del Mar" title="Латинська Америка (acuerdolatino.int.ar)">Viña del Mar</span>
                   <span class="filter-tag" data-filter="EMSA">EMSA</span>
                   <!-- Flag Administrations -->
                   <span class="filter-tag" data-filter="Singapore MPA"
@@ -240,7 +267,7 @@
             <!-- Category / Impact / Layout Filter Block -->
             <div class="filter-container">
               <!-- Filter by Category -->
-              <details class="filter-row filter-dropdown">
+              <details class="filter-row filter-dropdown" open>
                 <summary class="filter-label">Category:</summary>
                 <div class="filter-tags" id="filter-category">
                   <span class="filter-tag active" data-filter="all"
@@ -266,7 +293,7 @@
               </details>
 
               <!-- Filter by Impact -->
-              <details class="filter-row filter-dropdown">
+              <details class="filter-row filter-dropdown" open>
                 <summary class="filter-label">Impact Level:</summary>
                 <div class="filter-tags" id="filter-impact">
                   <span class="filter-tag active" data-filter="all"
@@ -279,7 +306,7 @@
               </details>
 
               <!-- Card Layout Selector -->
-              <details class="filter-row filter-dropdown">
+              <details class="filter-row filter-dropdown" open>
                 <summary class="filter-label">Layout Mode:</summary>
                 <div class="filter-tags" id="layout-selectors">
                   <span class="filter-tag active" data-layout="big"
@@ -303,6 +330,27 @@
           </div>
         </section>
 
+        <!-- View PSC: Port State Control -->
+        <section id="view-psc" class="view-panel">
+          <div class="news-grid" id="psc-grid-container">
+            <!-- Dynamic PSC Cards will be loaded here -->
+          </div>
+        </section>
+
+        <!-- View Flags: Flag States -->
+        <section id="view-flags" class="view-panel">
+          <div class="news-grid" id="flags-grid-container">
+            <!-- Dynamic Flag State Cards will be loaded here -->
+          </div>
+        </section>
+
+        <!-- View Class: Classification Societies -->
+        <section id="view-class" class="view-panel">
+          <div class="news-grid" id="class-grid-container">
+            <!-- Dynamic Class Cards will be loaded here -->
+          </div>
+        </section>
+
         <!-- View 2: Regulatory Timeline -->
         <section id="view-timeline" class="view-panel">
           <div class="timeline-wrapper" id="timeline-container">
@@ -311,116 +359,7 @@
           </div>
         </section>
 
-        <!-- View 3: Study Deck -->
-        <section id="view-study" class="view-panel">
-          <div class="study-grid">
-            <!-- Flashcards Panel -->
-            <div class="study-column">
-              <h2 class="study-section-title">
-                <i class="fa-solid fa-clone"></i> Revision Flashcards
-              </h2>
-              <div class="flashcard-carousel-container">
-                <div class="flashcard-wrapper" id="flashcard-wrapper">
-                  <div class="flashcard" id="flashcard">
-                    <div class="flashcard-face flashcard-front">
-                      <span class="flashcard-label" id="flashcard-category"
-                        >Regulatory Standard</span
-                      >
-                      <p class="flashcard-text" id="flashcard-front-text">
-                        Question Front Text
-                      </p>
-                      <span class="flashcard-hint"
-                        ><i class="fa-solid fa-rotate"></i> Click to flip</span
-                      >
-                    </div>
 
-                    <div class="flashcard-face flashcard-back">
-                      <span class="flashcard-label">Explanation & Answer</span>
-                      <p class="flashcard-text" id="flashcard-back-text">
-                        Answer Back Text
-                      </p>
-                      <span class="flashcard-hint"
-                        ><i class="fa-solid fa-rotate"></i> Click to flip
-                        back</span
-                      >
-                    </div>
-                  </div>
-                </div>
-
-                <div class="carousel-controls">
-                  <button
-                    class="carousel-btn"
-                    id="prev-flashcard-btn"
-                    aria-label="Previous Flashcard"
-                  >
-                    <i class="fa-solid fa-arrow-left"></i>
-                  </button>
-                  <span class="carousel-indicator" id="flashcard-counter"
-                    >1 / 10</span
-                  >
-                  <button
-                    class="carousel-btn"
-                    id="next-flashcard-btn"
-                    aria-label="Next Flashcard"
-                  >
-                    <i class="fa-solid fa-arrow-right"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Interactive Quiz Panel -->
-            <div class="study-column">
-              <h2 class="study-section-title">
-                <i class="fa-solid fa-square-poll-horizontal"></i> Quick
-                Knowledge Check
-              </h2>
-              <div class="quiz-mode-selector">
-                <label class="study-checkbox-label">
-                  <input type="checkbox" id="quiz-target-bookmarks" />
-                  Study Bookmarked Only
-                </label>
-              </div>
-              <div class="quiz-container" id="quiz-container">
-                <div class="quiz-progress-bar">
-                  <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
-                </div>
-                <div class="quiz-header">
-                  <span class="quiz-question-num" id="quiz-question-num"
-                    >Question 1 of 5</span
-                  >
-                  <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
-                </div>
-
-                <p class="quiz-question" id="quiz-question-text">
-                  Quiz question content?
-                </p>
-
-                <div class="quiz-options" id="quiz-options-container">
-                  <!-- Dynamically generated multiple choice buttons -->
-                </div>
-
-                <div class="quiz-feedback" id="quiz-feedback">
-                  <div class="quiz-feedback-title" id="quiz-feedback-title">
-                    Correct!
-                  </div>
-                  <div class="quiz-feedback-text" id="quiz-feedback-text">
-                    Explanation content.
-                  </div>
-                </div>
-
-                <div class="quiz-actions">
-                  <button class="quiz-next-btn" id="quiz-next-btn">
-                    Next Question <i class="fa-solid fa-circle-arrow-right"></i>
-                  </button>
-                  <button class="quiz-restart-btn" id="quiz-restart-btn">
-                    Restart Quiz <i class="fa-solid fa-rotate-left"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <!-- View 4: Bookmarks / Reading List -->
         <section id="view-bookmarks" class="view-panel">
@@ -511,23 +450,7 @@
             </p>
           </div>
 
-          <!-- Key Takeaways Section -->
-          <div class="drawer-section">
-            <h3 class="drawer-section-title">Key Compliance Takeaways</h3>
-            <ul class="takeaway-list" id="drawer-takeaways-list">
-              <!-- List items -->
-            </ul>
-          </div>
 
-          <!-- Study Deck Jump Panel -->
-          <div class="study-shortcut-panel" id="study-shortcut-panel">
-            <div class="study-shortcut-text">
-              Ready to test your knowledge on this regulation?
-            </div>
-            <button class="study-shortcut-btn" id="study-shortcut-btn">
-              Study Now <i class="fa-solid fa-angle-right"></i>
-            </button>
-          </div>
 
           <!-- Source Attribution Link -->
           <div class="drawer-source-attribution" id="drawer-source-attribution">

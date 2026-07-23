@@ -13,16 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     searchQuery: "",
     theme: "dark",
     cardSize: "big", // big, small, list
-    
-    // Flashcard State
-    flashcards: [],
-    currentFlashcardIndex: 0,
-    
-    // Quiz State
-    quizQuestions: [],
-    currentQuizIndex: 0,
-    quizScore: 0,
-    quizFinished: false
   };
 
   // --- DOM ELEMENTS ---
@@ -45,6 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Grids
     newsGrid: document.getElementById("news-grid-container"),
+    pscGrid: document.getElementById("psc-grid-container"),
+    flagsGrid: document.getElementById("flags-grid-container"),
+    classGrid: document.getElementById("class-grid-container"),
     bookmarksGrid: document.getElementById("bookmarks-grid-container"),
     bookmarksEmptyState: document.getElementById("bookmarks-empty-state"),
     bookmarksBrowseBtn: document.getElementById("bookmarks-browse-btn"),
@@ -58,7 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Stats
     statTotalUpdates: document.getElementById("stat-total-updates"),
     statHighImpact: document.getElementById("stat-high-impact"),
-    statQuizQuestions: document.getElementById("stat-quiz-questions"),
+    statMediumImpact: document.getElementById("stat-medium-impact"),
+    statLowImpact: document.getElementById("stat-low-impact"),
     statSavedItems: document.getElementById("stat-saved-items"),
     
     // Sizing & Parsing Controllers
@@ -80,42 +74,36 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerPublish: document.getElementById("drawer-meta-publish"),
     drawerEnforced: document.getElementById("drawer-meta-enforced"),
     drawerSummary: document.getElementById("drawer-summary-text"),
-    drawerTakeaways: document.getElementById("drawer-takeaways-list"),
-    studyShortcutPanel: document.getElementById("study-shortcut-panel"),
-    studyShortcutBtn: document.getElementById("study-shortcut-btn"),
     drawerSourceLink: document.getElementById("drawer-source-link"),
-    drawerSourceLinkText: document.getElementById("drawer-source-link-text"),
-    
-    // Flashcard DOM
-    flashcardWrapper: document.getElementById("flashcard-wrapper"),
-    flashcard: document.getElementById("flashcard"),
-    flashcardCategory: document.getElementById("flashcard-category"),
-    flashcardFrontText: document.getElementById("flashcard-front-text"),
-    flashcardBackText: document.getElementById("flashcard-back-text"),
-    prevFlashcardBtn: document.getElementById("prev-flashcard-btn"),
-    nextFlashcardBtn: document.getElementById("next-flashcard-btn"),
-    flashcardCounter: document.getElementById("flashcard-counter"),
-    
-    // Quiz DOM
-    quizContainer: document.getElementById("quiz-container"),
-    quizQuestionNum: document.getElementById("quiz-question-num"),
-    quizScoreText: document.getElementById("quiz-score"),
-    quizQuestionText: document.getElementById("quiz-question-text"),
-    quizOptionsContainer: document.getElementById("quiz-options-container"),
-    quizFeedback: document.getElementById("quiz-feedback"),
-    quizFeedbackTitle: document.getElementById("quiz-feedback-title"),
-    quizFeedbackText: document.getElementById("quiz-feedback-text"),
-    quizNextBtn: document.getElementById("quiz-next-btn"),
-    quizRestartBtn: document.getElementById("quiz-restart-btn")
+    drawerSourceLinkText: document.getElementById("drawer-source-link-text")
   };
 
   // --- INITIALIZATION ---
-  function init() {
+  async function init() {
     loadSavedArticles();
     loadThemePreference();
     setupEventListeners();
-    extractFlashcards();
-    extractQuizQuestions();
+    
+    // Fetch real data from backend
+    try {
+      const res = await fetch('http://localhost:3000/api/news');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          // Retain mock data for Classes, Flags, and Orgs not scraped by backend
+          const retainedMockData = window.MARITIME_DATA.filter(item => {
+            const isFlag = ["Singapore MPA", "Malta Transport", "Hong Kong MARDEP", "Panama AMP"].includes(item.source);
+            const isClass = ["DNV", "Lloyd's Register", "ABS"].includes(item.source);
+            const isOrg = ["ILO", "BIMCO", "ICS"].includes(item.source); // Retain orgs except IMO
+            return isFlag || isClass || isOrg;
+          });
+          window.MARITIME_DATA = [...retainedMockData, ...data];
+        }
+      }
+    } catch (err) {
+      console.warn("Backend not reachable. Using local mock data.", err);
+    }
+    
     updateStats();
     buildNewsTicker();
     
@@ -131,6 +119,18 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(err => console.error('SW error', err));
     }
     
+    // Handle responsive filter dropdowns
+    function handleFiltersResize() {
+      const dropdowns = document.querySelectorAll('.filter-dropdown');
+      if (window.innerWidth <= 768) {
+        dropdowns.forEach(d => d.removeAttribute('open'));
+      } else {
+        dropdowns.forEach(d => d.setAttribute('open', ''));
+      }
+    }
+    window.addEventListener('resize', handleFiltersResize);
+    handleFiltersResize();
+
     // Initial Render
     renderView();
   }
@@ -215,8 +215,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
   }
 
-  // --- UPDATE NEWS SIMULATION ---
-  function triggerNewsParsing() {
+  // --- UPDATE NEWS SIMULATION (NOW REAL API CALL) ---
+  async function triggerNewsParsing() {
     const btn = DOM.btnUpdateNews;
     if (!btn) return;
     const icon = btn.querySelector("i");
@@ -224,61 +224,75 @@ document.addEventListener("DOMContentLoaded", () => {
     
     btn.disabled = true;
     if (icon) icon.classList.add("spinning");
-    if (text) text.innerText = "Parsing Portals...";
+    if (text) text.innerText = "Scraping Portals...";
     
-    showToast("Parsing Portals", "Connecting to IMO, ILO, DNV, Lloyd's Register, ABS databases...", "info");
+    showToast("Scraping Portals", "Connecting to Maritime sources and parsing latest updates...", "info");
     
-    setTimeout(() => {
-      showToast("Scanning Sources", "Checking BIMCO, ICS, Gard P&I, UK P&I Club circulars...", "info");
-    }, 500);
-
-    setTimeout(() => {
-      if (text) text.innerText = "Scanning Media...";
-      showToast("Media & Flag States", "Fetching Safety4Sea, TradeWinds, Singapore MPA, Malta, HK MARDEP, Panama AMP...", "info");
-    }, 1000);
-    
-    setTimeout(() => {
-      if (text) text.innerText = "Summarizing Updates...";
-      showToast("Running Summarizer", "Analyzing new maritime circulars & amendments...", "info");
-    }, 1500);
-    
-    setTimeout(() => {
+    try {
+      const res = await fetch('http://localhost:3000/api/scrape', { method: 'POST' });
+      if (!res.ok) throw new Error("Scrape failed");
+      const resJson = await res.json();
+      
+      showToast("Scraping active", "Extracting news articles...", "info");
+      
+      // Wait for 3 seconds to let backend process the PoC scrape
+      setTimeout(async () => {
+        try {
+          const fetchRes = await fetch('http://localhost:3000/api/news');
+          if (fetchRes.ok) {
+            const newData = await fetchRes.json();
+            const retainedMockData = window.MARITIME_DATA.filter(item => {
+              const isFlag = ["Singapore MPA", "Malta Transport", "Hong Kong MARDEP", "Panama AMP"].includes(item.source);
+              const isClass = ["DNV", "Lloyd's Register", "ABS"].includes(item.source);
+              const isOrg = ["ILO", "BIMCO", "ICS"].includes(item.source);
+              return isFlag || isClass || isOrg;
+            });
+            window.MARITIME_DATA = [...retainedMockData, ...newData];
+            
+            showToast("Update Complete", "Successfully fetched latest maritime news.", "success");
+            
+            // Show any errors from specific scrapers
+            if (resJson.results && resJson.results.errors && resJson.results.errors.length > 0) {
+              resJson.results.errors.forEach(err => {
+                showToast(`${err.source} Failed`, err.error, "error");
+              });
+            }
+            updateStats();
+            buildNewsTicker();
+            
+            if (state.currentView === "news") {
+              renderNewsGrid();
+            } else if (state.currentView === "psc") {
+              renderPscGrid();
+            } else if (state.currentView === "flags") {
+              renderFlagsGrid();
+            } else if (state.currentView === "class") {
+              renderClassGrid();
+            } else if (state.currentView === "bookmarks") {
+              renderBookmarksGrid();
+            } else if (state.currentView === "timeline") {
+              renderTimeline();
+            }
+          }
+        } catch (e) {
+          showToast("Error", "Failed to fetch updated news", "error");
+        } finally {
+          if (icon) icon.classList.remove("spinning");
+          btn.disabled = false;
+          if (text) text.innerText = "Update News";
+          if (DOM.lastUpdateTime) {
+            DOM.lastUpdateTime.innerText = `Last checked: ${formatDate(new Date())}`;
+          }
+        }
+      }, 3000);
+      
+    } catch (err) {
+      console.error(err);
+      showToast("Error", "Backend scrape request failed. Is the server running?", "error");
       if (icon) icon.classList.remove("spinning");
       btn.disabled = false;
       if (text) text.innerText = "Update News";
-      
-      const now = new Date();
-      if (DOM.lastUpdateTime) {
-        DOM.lastUpdateTime.innerText = `Last checked: ${formatDate(now)}`;
-      }
-      
-      if (window.RESERVE_UPDATES && window.RESERVE_UPDATES.length > 0) {
-        const newItem = window.RESERVE_UPDATES.shift();
-        newItem.isNew = true; // Mark as unread
-        window.MARITIME_DATA.unshift(newItem);
-        
-        showToast(
-          "Update Complete", 
-          `Discovered new regulation: "${escapeHtml(newItem.title)}". Added to News Board.`, 
-          "success"
-        );
-        
-        updateStats();
-        extractFlashcards();
-        extractQuizQuestions();
-        buildNewsTicker();
-        
-        if (state.currentView === "news") {
-          renderNewsGrid();
-        } else if (state.currentView === "bookmarks") {
-          renderBookmarksGrid();
-        } else if (state.currentView === "timeline") {
-          renderTimeline();
-        }
-      } else {
-        showToast("Checked Successfully", "All 17 sources are up-to-date. No new circulars found.", "success");
-      }
-    }, 2200);
+    }
   }
 
   // --- LOCAL STORAGE ---
@@ -308,6 +322,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Re-render appropriate grids
     if (state.currentView === "news") {
       renderNewsGrid();
+    } else if (state.currentView === "psc") {
+      renderPscGrid();
+    } else if (state.currentView === "flags") {
+      renderFlagsGrid();
+    } else if (state.currentView === "class") {
+      renderClassGrid();
     } else if (state.currentView === "bookmarks") {
       renderBookmarksGrid();
     }
@@ -321,6 +341,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.statHighImpact) {
       const highCount = window.MARITIME_DATA.filter(a => a.impact === "High").length;
       DOM.statHighImpact.innerText = highCount;
+    }
+    if (DOM.statMediumImpact) {
+      const mediumCount = window.MARITIME_DATA.filter(a => a.impact === "Medium").length;
+      DOM.statMediumImpact.innerText = mediumCount;
+    }
+    if (DOM.statLowImpact) {
+      const lowCount = window.MARITIME_DATA.filter(a => a.impact === "Low").length;
+      DOM.statLowImpact.innerText = lowCount;
     }
     if (DOM.statSavedItems) {
       DOM.statSavedItems.innerText = state.savedArticles.length;
@@ -427,6 +455,12 @@ document.addEventListener("DOMContentLoaded", () => {
         state.searchQuery = e.target.value.toLowerCase();
         if (state.currentView === "news") {
           renderNewsGrid();
+        } else if (state.currentView === "psc") {
+          renderPscGrid();
+        } else if (state.currentView === "flags") {
+          renderFlagsGrid();
+        } else if (state.currentView === "class") {
+          renderClassGrid();
         } else if (state.currentView === "bookmarks") {
           renderBookmarksGrid();
         } else if (state.currentView === "timeline") {
@@ -442,6 +476,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Delegated clicks for card grids (open drawer / toggle bookmark)
     if (DOM.newsGrid) DOM.newsGrid.addEventListener("click", handleGridClick);
+    if (DOM.pscGrid) DOM.pscGrid.addEventListener("click", handleGridClick);
+    if (DOM.flagsGrid) DOM.flagsGrid.addEventListener("click", handleGridClick);
+    if (DOM.classGrid) DOM.classGrid.addEventListener("click", handleGridClick);
     if (DOM.bookmarksGrid) DOM.bookmarksGrid.addEventListener("click", handleGridClick);
     if (DOM.timelineContainer) DOM.timelineContainer.addEventListener("click", handleGridClick);
 
@@ -504,90 +541,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Flashcard interactivity
-    if (DOM.flashcardWrapper) {
-      DOM.flashcardWrapper.addEventListener("click", () => {
-        DOM.flashcard.classList.toggle("flipped");
-      });
-    }
-
-    if (DOM.prevFlashcardBtn) {
-      DOM.prevFlashcardBtn.addEventListener("click", () => {
-        if (state.currentFlashcardIndex > 0) {
-          state.currentFlashcardIndex--;
-          DOM.flashcard.classList.remove("flipped");
-          setTimeout(renderFlashcard, 150); // slight delay to allow reset flip
-        }
-      });
-    }
-
-    if (DOM.nextFlashcardBtn) {
-      DOM.nextFlashcardBtn.addEventListener("click", () => {
-        if (state.currentFlashcardIndex < state.flashcards.length - 1) {
-          state.currentFlashcardIndex++;
-          DOM.flashcard.classList.remove("flipped");
-          setTimeout(renderFlashcard, 150);
-        }
-      });
-    }
-
-    // Flashcard Keyboard Navigation
-    document.addEventListener("keydown", (e) => {
-      if (state.currentView !== "study") return;
-      if (e.key === "ArrowLeft" && state.currentFlashcardIndex > 0) {
-        DOM.prevFlashcardBtn.click();
-      } else if (e.key === "ArrowRight" && state.currentFlashcardIndex < state.flashcards.length - 1) {
-        DOM.nextFlashcardBtn.click();
-      } else if (e.key === " " && DOM.flashcard) {
-        e.preventDefault();
-        DOM.flashcard.classList.toggle("flipped");
-      }
-    });
-
-    // Targeted Study Checkbox
-    const quizTargetBookmarks = document.getElementById("quiz-target-bookmarks");
-    if (quizTargetBookmarks) {
-      quizTargetBookmarks.addEventListener("change", (e) => {
-        extractFlashcards(e.target.checked);
-        extractQuizQuestions(e.target.checked);
-        renderFlashcard();
-        renderQuizQuestion();
-      });
-    }
-
-    // Quiz action buttons
-    if (DOM.quizNextBtn) {
-      DOM.quizNextBtn.addEventListener("click", () => {
-        if (state.currentQuizIndex < state.quizQuestions.length - 1) {
-          state.currentQuizIndex++;
-          renderQuizQuestion();
-        }
-      });
-    }
-
-    if (DOM.quizRestartBtn) {
-      DOM.quizRestartBtn.addEventListener("click", () => {
-        state.currentQuizIndex = 0;
-        state.quizScore = 0;
-        state.quizFinished = false;
-        renderQuizQuestion();
-      });
-    }
-
-    // Modal Drawer 'Study Now' Shortcut
-    if (DOM.studyShortcutBtn) {
-      DOM.studyShortcutBtn.addEventListener("click", () => {
-        const articleId = DOM.studyShortcutBtn.getAttribute("data-target-id");
-        closeDrawer();
-        
-        // Find Study Tab
-        const studyNav = document.getElementById("nav-study");
-        if (studyNav) studyNav.click();
-        
-        // Filter quiz / flashcards to focus on this article specifically
-        focusStudyOnArticle(articleId);
-      });
-    }
 
     // Card Layout Selectors
     if (DOM.layoutSelectors) {
@@ -600,6 +553,12 @@ document.addEventListener("DOMContentLoaded", () => {
           state.cardSize = tag.getAttribute("data-layout");
           if (state.currentView === "news") {
             renderNewsGrid();
+          } else if (state.currentView === "psc") {
+            renderPscGrid();
+          } else if (state.currentView === "flags") {
+            renderFlagsGrid();
+          } else if (state.currentView === "class") {
+            renderClassGrid();
           } else if (state.currentView === "bookmarks") {
             renderBookmarksGrid();
           }
@@ -622,7 +581,10 @@ document.addEventListener("DOMContentLoaded", () => {
         tag.classList.add("active");
         
         state.activeFilters[stateKey] = tag.getAttribute("data-filter");
-        renderNewsGrid();
+        if (state.currentView === "news") renderNewsGrid();
+        else if (state.currentView === "psc") renderPscGrid();
+        else if (state.currentView === "flags") renderFlagsGrid();
+        else if (state.currentView === "class") renderClassGrid();
       });
     });
   }
@@ -644,6 +606,18 @@ document.addEventListener("DOMContentLoaded", () => {
       DOM.viewTitle.innerText = "Maritime News Board";
       DOM.viewSubtitle.innerText = "Summarized updates from major Maritime Organisations & Conventions";
       renderNewsGrid();
+    } else if (viewName === "psc") {
+      DOM.viewTitle.innerText = "Port State Control (PSC)";
+      DOM.viewSubtitle.innerText = "Updates and regulations from various MoUs and PSC authorities";
+      renderPscGrid();
+    } else if (viewName === "flags") {
+      DOM.viewTitle.innerText = "Flag Administrations";
+      DOM.viewSubtitle.innerText = "Directives and circulars from Flag States";
+      renderFlagsGrid();
+    } else if (viewName === "class") {
+      DOM.viewTitle.innerText = "Classification Societies";
+      DOM.viewSubtitle.innerText = "Rules, technical updates, and guidance from Class Societies";
+      renderClassGrid();
     } else if (viewName === "timeline") {
       DOM.viewTitle.innerText = "Regulatory Timeline";
       DOM.viewSubtitle.innerText = "Visual milestones of upcoming convention implementation dates";
@@ -669,7 +643,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- FILTERING LOGIC ---
   function getFilteredNews() {
+    const pscSources = [
+      "Paris MoU", "Tokyo MoU", "USCG", "Black Sea MoU", 
+      "Riyadh MoU", "Indian Ocean MoU", "Mediterranean MoU", 
+      "Caribbean MoU", "Abuja MoU", "Acuerdo de Viña del Mar", "EMSA"
+    ];
+
+    const flagSources = [
+      "Singapore MPA", "Malta Transport", "Hong Kong MARDEP", "Panama AMP"
+    ];
+
+    const classSources = [
+      "DNV", "Lloyd's Register", "ABS"
+    ];
+
     return window.MARITIME_DATA.filter(item => {
+      const isPsc = pscSources.includes(item.source);
+      const isFlag = flagSources.includes(item.source);
+      const isClass = classSources.includes(item.source);
+      
+      // Separate News, PSC, Flags, and Class
+      if (state.currentView === "news" && (isPsc || isFlag || isClass)) return false;
+      if (state.currentView === "psc" && !isPsc) return false;
+      if (state.currentView === "flags" && !isFlag) return false;
+      if (state.currentView === "class" && !isClass) return false;
+
       // Source Filter
       if (state.activeFilters.source !== "all" && item.source !== state.activeFilters.source) {
         return false;
@@ -712,7 +710,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function cardTemplate(item, { isSaved, learnMoreLabel, bookmarkLabel, index = 0 }) {
     // Generate highlighted title and summary if search matches
     let displayTitle = escapeHtml(item.title);
-    let displaySummary = escapeHtml(item.summary);
+    
+    // For the card snippet, use fullText and slice it so it doesn't break layout
+    let rawText = item.fullText || item.summary || 'No text available';
+    let displaySummary = escapeHtml(rawText.length > 200 ? rawText.substring(0, 200) + '...' : rawText);
     if (state.searchQuery) {
       const searchTerms = state.searchQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
       searchTerms.forEach(term => {
@@ -841,6 +842,87 @@ document.addEventListener("DOMContentLoaded", () => {
     })).join("");
   }
 
+  // --- RENDER PSC GRID ---
+  function renderPscGrid() {
+    if (!DOM.pscGrid) return;
+    
+    const filtered = getFilteredNews();
+    
+    DOM.pscGrid.className = `news-grid size-${state.cardSize}`;
+    
+    if (filtered.length === 0) {
+      DOM.pscGrid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; margin: 2rem auto;">
+          <div class="empty-icon"><i class="fa-solid fa-anchor"></i></div>
+          <h3 class="empty-title">No PSC Updates Found</h3>
+          <p class="empty-desc">No Port State Control updates match your search criteria.</p>
+        </div>
+      `;
+      return;
+    }
+
+    DOM.pscGrid.innerHTML = filtered.map((item, index) => cardTemplate(item, {
+      isSaved: state.savedArticles.includes(item.id),
+      learnMoreLabel: "Read Summary",
+      bookmarkLabel: "Save Article",
+      index: index
+    })).join("");
+  }
+
+  // --- RENDER FLAGS GRID ---
+  function renderFlagsGrid() {
+    if (!DOM.flagsGrid) return;
+    
+    const filtered = getFilteredNews();
+    
+    DOM.flagsGrid.className = `news-grid size-${state.cardSize}`;
+    
+    if (filtered.length === 0) {
+      DOM.flagsGrid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; margin: 2rem auto;">
+          <div class="empty-icon"><i class="fa-solid fa-flag"></i></div>
+          <h3 class="empty-title">No Flag State Updates Found</h3>
+          <p class="empty-desc">No Flag Administration updates match your search criteria.</p>
+        </div>
+      `;
+      return;
+    }
+
+    DOM.flagsGrid.innerHTML = filtered.map((item, index) => cardTemplate(item, {
+      isSaved: state.savedArticles.includes(item.id),
+      learnMoreLabel: "Read Summary",
+      bookmarkLabel: "Save Article",
+      index: index
+    })).join("");
+  }
+
+  // --- RENDER CLASS GRID ---
+  function renderClassGrid() {
+    if (!DOM.classGrid) return;
+    
+    const filtered = getFilteredNews();
+    
+    DOM.classGrid.className = `news-grid size-${state.cardSize}`;
+    
+    if (filtered.length === 0) {
+      DOM.classGrid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; margin: 2rem auto;">
+          <div class="empty-icon"><i class="fa-solid fa-certificate"></i></div>
+          <h3 class="empty-title">No Class Society Updates Found</h3>
+          <p class="empty-desc">No Classification Society updates match your search criteria.</p>
+        </div>
+      `;
+      return;
+    }
+
+    DOM.classGrid.innerHTML = filtered.map((item, index) => cardTemplate(item, {
+      isSaved: state.savedArticles.includes(item.id),
+      learnMoreLabel: "Read Summary",
+      bookmarkLabel: "Save Article",
+      index: index
+    })).join("");
+  }
+
   // --- RENDER SAVED ARTICLES GRID ---
   function renderBookmarksGrid() {
     if (!DOM.bookmarksGrid) return;
@@ -918,156 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  // --- RENDER FLASHCARDS ---
-  function renderFlashcard() {
-    if (state.flashcards.length === 0) {
-      DOM.flashcardFrontText.innerText = "No flashcards found.";
-      DOM.flashcardBackText.innerText = "Check back later.";
-      DOM.flashcardCounter.innerText = "0 / 0";
-      return;
-    }
-    
-    const fc = state.flashcards[state.currentFlashcardIndex];
-    DOM.flashcardCategory.innerText = `${fc.source} - ${fc.category}`;
-    DOM.flashcardFrontText.innerText = fc.front;
-    DOM.flashcardBackText.innerText = fc.back;
-    
-    DOM.flashcardCounter.innerText = `${state.currentFlashcardIndex + 1} / ${state.flashcards.length}`;
-    
-    // Disable buttons if bounds reached
-    DOM.prevFlashcardBtn.disabled = (state.currentFlashcardIndex === 0);
-    DOM.nextFlashcardBtn.disabled = (state.currentFlashcardIndex === state.flashcards.length - 1);
-  }
 
-  // --- RENDER QUIZ ---
-  function renderQuizQuestion() {
-    if (state.quizQuestions.length === 0) {
-      DOM.quizQuestionText.innerText = "No quiz questions available.";
-      DOM.quizOptionsContainer.innerHTML = "";
-      DOM.quizFeedback.style.display = "none";
-      DOM.quizNextBtn.style.display = "none";
-      DOM.quizRestartBtn.style.display = "none";
-      DOM.quizScoreText.innerText = "";
-      return;
-    }
-
-    if (state.quizFinished) {
-      showQuizResults();
-      return;
-    }
-
-    const q = state.quizQuestions[state.currentQuizIndex];
-    DOM.quizQuestionNum.innerText = `Question ${state.currentQuizIndex + 1} of ${state.quizQuestions.length}`;
-    DOM.quizScoreText.innerText = `Score: ${state.quizScore} / ${state.currentQuizIndex}`;
-    DOM.quizQuestionText.innerText = q.question;
-    
-    // Update progress bar
-    const progressFill = document.getElementById("quiz-progress-fill");
-    if (progressFill) {
-      const progressPercent = ((state.currentQuizIndex) / state.quizQuestions.length) * 100;
-      progressFill.style.width = `${progressPercent}%`;
-    }
-    
-    // Clear feedback and actions
-    DOM.quizFeedback.style.display = "none";
-    DOM.quizNextBtn.style.display = "none";
-    DOM.quizRestartBtn.style.display = "none";
-
-    // Generate option buttons
-    DOM.quizOptionsContainer.innerHTML = q.options.map((opt, index) => `
-      <button class="quiz-option" data-idx="${index}">
-        <span>${escapeHtml(opt)}</span>
-        <i class="fa-regular fa-circle"></i>
-      </button>
-    `).join("");
-
-    // Bind option click
-    const optButtons = DOM.quizOptionsContainer.querySelectorAll(".quiz-option");
-    optButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        selectQuizOption(parseInt(btn.getAttribute("data-idx")), optButtons, q);
-      });
-    });
-  }
-
-  function selectQuizOption(selectedIdx, buttons, question) {
-    // Disable all options
-    buttons.forEach(btn => btn.classList.add("disabled"));
-    
-    const correctIdx = question.answerIndex;
-    const isCorrect = (selectedIdx === correctIdx);
-    
-    if (isCorrect) {
-      state.quizScore++;
-      buttons[selectedIdx].classList.add("correct");
-      buttons[selectedIdx].querySelector("i").className = "fa-solid fa-circle-check";
-      DOM.quizFeedbackTitle.innerText = "Correct! ✓";
-      DOM.quizFeedbackTitle.style.color = "#10b981";
-    } else {
-      buttons[selectedIdx].classList.add("incorrect");
-      buttons[selectedIdx].querySelector("i").className = "fa-solid fa-circle-xmark";
-      buttons[correctIdx].classList.add("correct");
-      buttons[correctIdx].querySelector("i").className = "fa-solid fa-circle-check";
-      DOM.quizFeedbackTitle.innerText = "Incorrect ✗";
-      DOM.quizFeedbackTitle.style.color = "#ef4444";
-    }
-
-    // Display Explanation Feedback
-    DOM.quizFeedbackText.innerText = question.explanation;
-    DOM.quizFeedback.style.display = "block";
-
-    // Update score text in header
-    DOM.quizScoreText.innerText = `Score: ${state.quizScore} / ${state.currentQuizIndex + 1}`;
-
-    // Manage action buttons
-    if (state.currentQuizIndex < state.quizQuestions.length - 1) {
-      DOM.quizNextBtn.style.display = "block";
-    } else {
-      state.quizFinished = true;
-      DOM.quizNextBtn.style.display = "none";
-      // Show restart immediately or show results slide next
-      const resultsBtn = document.createElement("button");
-      resultsBtn.className = "quiz-next-btn";
-      resultsBtn.innerText = "View Final Results";
-      resultsBtn.style.display = "block";
-      resultsBtn.onclick = () => {
-        resultsBtn.remove();
-        showQuizResults();
-      };
-      DOM.quizNextBtn.parentNode.insertBefore(resultsBtn, DOM.quizNextBtn);
-    }
-  }
-
-  function showQuizResults() {
-    DOM.quizQuestionNum.innerText = "Quiz Completed";
-    DOM.quizScoreText.innerText = "";
-    
-    const percentage = Math.round((state.quizScore / state.quizQuestions.length) * 100);
-    let gradeLabel = "Keep Studying!";
-    let gradeColor = "var(--alert-medium)";
-    
-    if (percentage >= 85) {
-      gradeLabel = "Master Mariner Status!";
-      gradeColor = "#10b981";
-    } else if (percentage >= 50) {
-      gradeLabel = "Competent Officer!";
-      gradeColor = "var(--accent-primary)";
-    }
-    
-    DOM.quizQuestionText.innerHTML = `
-      <div style="text-align: center; padding: 1.5rem 0;">
-        <i class="fa-solid fa-trophy" style="font-size: 3.5rem; color: ${gradeColor}; margin-bottom: 1rem;"></i>
-        <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.5rem;">Your Score: ${percentage}%</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 1rem;">You answered ${state.quizScore} out of ${state.quizQuestions.length} questions correctly.</p>
-        <span style="display: inline-block; padding: 0.4rem 1rem; border-radius: 30px; font-weight: 700; color: #fff; background: ${gradeColor}; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">${gradeLabel}</span>
-      </div>
-    `;
-    
-    DOM.quizOptionsContainer.innerHTML = "";
-    DOM.quizFeedback.style.display = "none";
-    DOM.quizNextBtn.style.display = "none";
-    DOM.quizRestartBtn.style.display = "block";
-  }
 
   // --- DETAILS DRAWER ---
   function openDrawer(articleId) {
@@ -1093,25 +1026,20 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.drawerPublish.innerText = article.publishDate;
     DOM.drawerEnforced.innerText = article.implementationDate;
     
-    DOM.drawerSummary.innerText = article.summary;
+    DOM.drawerSummary.innerText = article.fullText || article.summary || 'No content available.';
 
-    // Key takeaways
-    DOM.drawerTakeaways.innerHTML = article.keyTakeaways.map(takeaway => `
-      <li>${escapeHtml(takeaway)}</li>
-    `).join("");
 
-    // Hook Study shortcut button
-    if (article.studyQuestions && article.studyQuestions.length > 0) {
-      DOM.studyShortcutPanel.style.display = "flex";
-      DOM.studyShortcutBtn.setAttribute("data-target-id", article.id);
-    } else {
-      DOM.studyShortcutPanel.style.display = "none";
-    }
 
     // Set source official website details
     if (DOM.drawerSourceLink && DOM.drawerSourceLinkText) {
-      DOM.drawerSourceLink.href = article.sourceUrl || "https://www.imo.org";
+      DOM.drawerSourceLink.href = article.sourceUrl || article.url || "#";
       DOM.drawerSourceLinkText.innerText = `${article.source} Official Reference (${article.convention || ''})`;
+      
+      if (!article.sourceUrl && !article.url) {
+        DOM.drawerSourceLink.style.display = "none";
+      } else {
+        DOM.drawerSourceLink.style.display = "flex";
+      }
     }
 
     // Toggle drawer active classes
@@ -1132,38 +1060,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = ""; // enable background scrolling
   }
 
-  // --- STUDY DECK TARGETED FILTER ---
-  function focusStudyOnArticle(articleId) {
-    const article = window.MARITIME_DATA.find(a => a.id === articleId);
-    if (!article) return;
 
-    // Filter flashcards specifically to this article
-    if (article.flashcards && article.flashcards.length > 0) {
-      state.flashcards = article.flashcards.map(fc => ({
-        ...fc,
-        category: article.category,
-        source: article.source,
-        title: article.title,
-        articleId: article.id
-      }));
-      state.currentFlashcardIndex = 0;
-      renderFlashcard();
-    }
-
-    // Filter quiz questions specifically to this article
-    if (article.studyQuestions && article.studyQuestions.length > 0) {
-      state.quizQuestions = article.studyQuestions.map(q => ({
-        ...q,
-        articleId: article.id,
-        articleTitle: article.title,
-        category: article.category
-      }));
-      state.currentQuizIndex = 0;
-      state.quizScore = 0;
-      state.quizFinished = false;
-      renderQuizQuestion();
-    }
-  }
 
   // --- BOOTSTRAP ---
   init();
